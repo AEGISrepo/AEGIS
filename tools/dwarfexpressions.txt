@@ -1,0 +1,76 @@
+DW_OP_const2u 0x10a, DW_OP_stack_value
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_breg15 R15+0, DW_OP_const4u 0xffffffff, DW_OP_and, DW_OP_stack_value
+DW_OP_reg12 R12, DW_OP_const1u 0x20, DW_OP_plus, DW_OP_stack_value
+DW_OP_entry_value(DW_OP_reg4 RSI), DW_OP_stack_value
+DW_OP_breg5 RDI+0, DW_OP_const4u 0xffffffff, DW_OP_and, DW_OP_stack_value
+DW_OP_addr 0xffffffff826f40b0, DW_OP_deref_size 0x4, DW_OP_const4u 0xffffffff, DW_OP_and, DW_OP_lit3, DW_OP_shl, DW_OP_stack_value
+DW_OP_fbreg -80
+DW_OP_breg15 R15+0, DW_OP_const4u 0xffffffff, DW_OP_and, DW_OP_stack_value
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_reg4 RSI
+DW_OP_reg1 RDX
+DW_OP_reg5 RDI
+DW_OP_const1s -22, DW_OP_stack_value
+DW_OP_reg1 RDX
+DW_OP_breg3 RBX+0, DW_OP_addr 0xffffffff826f40a8, DW_OP_deref, DW_OP_minus, DW_OP_stack_value
+DW_OP_fbreg -84
+DW_OP_breg5 RDI+0, DW_OP_addr 0xffffffff826f40a8, DW_OP_deref, DW_OP_minus, DW_OP_lit16, DW_OP_lit17, DW_OP_shl, DW_OP_neg, DW_OP_and, DW_OP_addr 0xffffffff82e1a340, DW_OP_deref, DW_OP_plus, DW_OP_stack_value
+DW_OP_breg5 RDI+0, DW_OP_const4u 0xffffffff, DW_OP_and, DW_OP_stack_value
+DW_OP_reg1 RDX
+DW_OP_const1s -12, DW_OP_stack_value
+DW_OP_breg14 R14+0, DW_OP_const1u 0xff, DW_OP_and, DW_OP_plus_uconst 0x1, DW_OP_lit3, DW_OP_shl, DW_OP_stack_value
+DW_OP_reg0 RAX
+DW_OP_reg0 RAX
+DW_OP_breg5 RDI+0, DW_OP_addr 0xffffffff826f40a8, DW_OP_deref, DW_OP_minus, DW_OP_stack_value
+DW_OP_breg14 R14+0, DW_OP_const1u 0xff, DW_OP_and, DW_OP_plus_uconst 0x1, DW_OP_lit3, DW_OP_shl, DW_OP_stack_value
+DW_OP_reg12 R12
+DW_OP_fbreg -80
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_fbreg -88
+DW_OP_breg15 R15+0, DW_OP_const4u 0xffffffff, DW_OP_and, DW_OP_stack_value
+DW_OP_reg12 R12
+DW_OP_reg12 R12
+DW_OP_reg0 RAX
+DW_OP_fbreg -84, DW_OP_deref_size 0x4, DW_OP_const4u 0xffffffff, DW_OP_and, DW_OP_stack_value
+DW_OP_fbreg -80
+DW_OP_reg13 R13
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_breg15 R15+0, DW_OP_fbreg -76, DW_OP_deref_size 0x4, DW_OP_minus, DW_OP_fbreg -80, DW_OP_deref_size 0x4, DW_OP_plus, DW_OP_plus_uconst 0x108, DW_OP_stack_value
+DW_OP_reg4 RSI
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_entry_value(DW_OP_reg9 R9), DW_OP_stack_value
+DW_OP_reg13 R13
+DW_OP_const2u 0x10a, DW_OP_stack_value
+DW_OP_entry_value(DW_OP_reg4 RSI), DW_OP_stack_value
+DW_OP_reg12 R12
+DW_OP_reg12 R12
+DW_OP_breg12 R12+0, DW_OP_const1u 0xff, DW_OP_and, DW_OP_lit20, DW_OP_shl, DW_OP_entry_value(DW_OP_reg2 RCX), DW_OP_or, DW_OP_stack_value
+DW_OP_addr 0xffffffff835c3000, DW_OP_stack_value
+DW_OP_fbreg -76, DW_OP_deref_size 0x4, DW_OP_const4u 0xffffffff, DW_OP_and, DW_OP_breg3 RBX+0, DW_OP_plus, DW_OP_stack_value
+DW_OP_const2u 0x10a, DW_OP_stack_value
+DW_OP_fbreg -80
+DW_OP_breg0 RAX+0, DW_OP_const4u 0xffffffff, DW_OP_and, DW_OP_breg3 RBX+0, DW_OP_plus, DW_OP_stack_value
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_reg12 R12
+DW_OP_const2u 0x10a, DW_OP_stack_value
+DW_OP_reg1 RDX
+DW_OP_fbreg -80
+DW_OP_reg4 RSI
+DW_OP_reg9 R9
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_fbreg -88
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_fbreg -88
+DW_OP_fbreg -80
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_breg0 RAX+0, DW_OP_const1u 0x20, DW_OP_shl, DW_OP_const1u 0x20, DW_OP_shra, DW_OP_stack_value
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_breg15 R15+0, DW_OP_addr 0xffffffff835c3000, DW_OP_plus, DW_OP_stack_value
+DW_OP_reg12 R12
+DW_OP_fbreg -84, DW_OP_deref_size 0x4, DW_OP_const4u 0xffffffff, DW_OP_and, DW_OP_stack_value
+DW_OP_addr 0xffffffff831f2c80
+DW_OP_lit0, DW_OP_stack_value
+DW_OP_reg4 RSI

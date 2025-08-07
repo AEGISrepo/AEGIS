@@ -1,0 +1,1176 @@
+[*] Reading CVE IDs
+[*] Read 346 CVE IDs.
+[*] Sampling 346 CVE IDs.
+[*] Preloading detailed information (references and descriptions) for all CVEs...
+[+] Preloading completed, loaded data for 346 CVEs.
+------------------------------------------------------------
+[*] Using 20 processes to search in './pocs'...
+[*] Note: File content search is limited to text files (e.g., .py, .txt, .json).
+
+[*] All search tasks completed, consolidating and performing secondary checks...
+------------------------------------------------------------
+  -> Result for CVE-2017-0306 (keyword: 2017-0306)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-0307 (keyword: 2017-0307)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-0437 (keyword: 2017-0437)
+  [+] Found! (File system)
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2017-0442 (keyword: 2017-0442)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-0614 (keyword: 2017-0614)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-1000255 (keyword: 2017-1000255)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-11003 (keyword: 2017-11003)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-11024 (keyword: 2017-11024)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-11045 (keyword: 2017-11045)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-1105 (keyword: 2017-1105)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-11075 (keyword: 2017-11075)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-11600 (keyword: 2017-11600)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-14128 (keyword: 2017-14128)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-14129 (keyword: 2017-14129)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-14904 (keyword: 2017-14904)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-14917 (keyword: 2017-14917)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-15020 (keyword: 2017-15020)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-15128 (keyword: 2017-15128)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-15836 (keyword: 2017-15836)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-15854 (keyword: 2017-15854)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-16527 (keyword: 2017-16527)
+  [+] Found! (Syzkaller reference)
+    - Found syzkaller dashboard in NVD reference link: https://groups.google.com/d/msg/syzkaller/jf7GTr_g2CU/iVlLhMciCQAJ
+------------------------------------------------------------
+  -> Result for CVE-2017-16645 (keyword: 2017-16645)
+  [+] Found! (Syzkaller reference)
+    - Found syzkaller dashboard in NVD reference link: https://groups.google.com/d/msg/syzkaller/q6jjr1OhqO8/WcA99AVFBAAJ
+------------------------------------------------------------
+  -> Result for CVE-2017-17121 (keyword: 2017-17121)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-17558 (keyword: 2017-17558)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-18050 (keyword: 2017-18050)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-18255 (keyword: 2017-18255)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-20006 (keyword: 2017-20006)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-2988 (keyword: 2017-2988)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-3068 (keyword: 2017-3068)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-3073 (keyword: 2017-3073)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-3735 (keyword: 2017-3735)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-5036 (keyword: 2017-5036)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-5051 (keyword: 2017-5051)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-5052 (keyword: 2017-5052)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-5055 (keyword: 2017-5055)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-5095 (keyword: 2017-5095)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-5111 (keyword: 2017-5111)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-6966 (keyword: 2017-6966)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-6969 (keyword: 2017-6969)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-7302 (keyword: 2017-7302)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-7304 (keyword: 2017-7304)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-8063 (keyword: 2017-8063)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-8067 (keyword: 2017-8067)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-8244 (keyword: 2017-8244)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-8273 (keyword: 2017-8273)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-8277 (keyword: 2017-8277)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-9697 (keyword: 2017-9697)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-9704 (keyword: 2017-9704)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-9712 (keyword: 2017-9712)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2017-9752 (keyword: 2017-9752)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-1068 (keyword: 2018-1068)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-10876 (keyword: 2018-10876)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-10940 (keyword: 2018-10940)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-11262 (keyword: 2018-11262)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-11295 (keyword: 2018-11295)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-11296 (keyword: 2018-11296)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-11851 (keyword: 2018-11851)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-11863 (keyword: 2018-11863)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-11987 (keyword: 2018-11987)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-12011 (keyword: 2018-12011)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-13096 (keyword: 2018-13096)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-14338 (keyword: 2018-14338)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-15687 (keyword: 2018-15687)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-18605 (keyword: 2018-18605)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-1936 (keyword: 2018-1936)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-20856 (keyword: 2018-20856)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-3581 (keyword: 2018-3581)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-3582 (keyword: 2018-3582)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-3931 (keyword: 2018-3931)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-5826 (keyword: 2018-5826)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-5835 (keyword: 2018-5835)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-5847 (keyword: 2018-5847)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-5848 (keyword: 2018-5848)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-5858 (keyword: 2018-5858)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-5872 (keyword: 2018-5872)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-5893 (keyword: 2018-5893)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-5905 (keyword: 2018-5905)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-5919 (keyword: 2018-5919)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-7568 (keyword: 2018-7568)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2018-8885 (keyword: 2018-8885)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-0122 (keyword: 2019-0122)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-10126 (keyword: 2019-10126)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-12937 (keyword: 2019-12937)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-14814 (keyword: 2019-14814)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-14816 (keyword: 2019-14816)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-14901 (keyword: 2019-14901)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-15213 (keyword: 2019-15213)
+  [+] Found! (Syzkaller reference)
+    - Found syzkaller dashboard in NVD reference link: https://syzkaller.appspot.com/bug?id=a53c9c9dd2981bfdbfbcbc1ddbd35595eda8bced
+------------------------------------------------------------
+  -> Result for CVE-2019-15504 (keyword: 2019-15504)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-18814 (keyword: 2019-18814)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-19523 (keyword: 2019-19523)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-20636 (keyword: 2019-20636)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-3016 (keyword: 2019-3016)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-4015 (keyword: 2019-4015)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-6974 (keyword: 2019-6974)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-9070 (keyword: 2019-9070)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2019-9075 (keyword: 2019-9075)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2020-12659 (keyword: 2020-12659)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2020-13974 (keyword: 2020-13974)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2020-14310 (keyword: 2020-14310)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2020-14351 (keyword: 2020-14351)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2020-25211 (keyword: 2020-25211)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2020-28974 (keyword: 2020-28974)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2020-29371 (keyword: 2020-29371)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2020-29372 (keyword: 2020-29372)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2020-36558 (keyword: 2020-36558)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2020-4387 (keyword: 2020-4387)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2020-6096 (keyword: 2020-6096)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-0920 (keyword: 2021-0920)
+  [+] Found! (File system)
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2021-1106 (keyword: 2021-1106)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-20194 (keyword: 2021-20194)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-21149 (keyword: 2021-21149)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-21152 (keyword: 2021-21152)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-22901 (keyword: 2021-22901)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-23134 (keyword: 2021-23134)
+  [+] Found! (File system)
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2021-27364 (keyword: 2021-27364)
+  [+] Found! (File system)
+    - File content: ./pocs/Linux-Privilege-Escalation-Exploits-main/2021/CVE-2021-27365/README.md
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2021-28039 (keyword: 2021-28039)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-28660 (keyword: 2021-28660)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-29266 (keyword: 2021-29266)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-33200 (keyword: 2021-33200)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-3347 (keyword: 2021-3347)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-33574 (keyword: 2021-33574)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-33656 (keyword: 2021-33656)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-3444 (keyword: 2021-3444)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-3490 (keyword: 2021-3490)
+  [+] Found! (File system)
+    - Directory name: ./pocs/Linux-Privilege-Escalation-Exploits-main/2021/CVE-2021-3490
+    - Directory name: ./pocs/Linux-Privilege-Escalation-Exploits-main/2021/CVE-2021-3490/include
+    - File content: ./pocs/Linux-Privilege-Escalation-Exploits-main/2021/CVE-2021-3490/README.md
+    - File content: ./pocs/Linux-Privilege-Escalation-Exploits-main/2021/CVE-2021-3490/exploit.c
+    - File content: ./pocs/Linux-Privilege-Escalation-Exploits-main/README.md
+    - File content: ./pocs/kernel-exploit-factory/README.md
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2021-3491 (keyword: 2021-3491)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-3492 (keyword: 2021-3492)
+  [+] Found! (File system)
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2021-3635 (keyword: 2021-3635)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-3697 (keyword: 2021-3697)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-4034 (keyword: 2021-4034)
+  [+] Found! (File system)
+    - Directory name: ./pocs/Linux-Privilege-Escalation-Exploits-main/2021/CVE-2021-4034
+    - File content: ./pocs/Linux-Privilege-Escalation-Exploits-main/2021/CVE-2021-4034/README.md
+    - File content: ./pocs/Linux-Privilege-Escalation-Exploits-main/2021/CVE-2021-4034/cve-2021-4034-poc.c
+    - File content: ./pocs/Linux-Privilege-Escalation-Exploits-main/README.md
+    - File name: ./pocs/Linux-Privilege-Escalation-Exploits-main/2021/CVE-2021-4034/cve-2021-4034-poc.c
+------------------------------------------------------------
+  -> Result for CVE-2021-4150 (keyword: 2021-4150)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-4439 (keyword: 2021-4439)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-46954 (keyword: 2021-46954)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2021-47048 (keyword: 2021-47048)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2021-47061 (keyword: 2021-47061)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47098 (keyword: 2021-47098)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47106 (keyword: 2021-47106)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2021-47107 (keyword: 2021-47107)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47123 (keyword: 2021-47123)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47138 (keyword: 2021-47138)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47142 (keyword: 2021-47142)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47148 (keyword: 2021-47148)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47168 (keyword: 2021-47168)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47198 (keyword: 2021-47198)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2021-47224 (keyword: 2021-47224)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47243 (keyword: 2021-47243)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47300 (keyword: 2021-47300)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2021-47311 (keyword: 2021-47311)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47341 (keyword: 2021-47341)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2021-47372 (keyword: 2021-47372)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2021-47427 (keyword: 2021-47427)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47432 (keyword: 2021-47432)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2021-47541 (keyword: 2021-47541)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-0433 (keyword: 2022-0433)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-0435 (keyword: 2022-0435)
+  [+] Found! (File system)
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2022-0494 (keyword: 2022-0494)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-0805 (keyword: 2022-0805)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-1015 (keyword: 2022-1015)
+  [+] Found! (File system)
+    - Directory name: ./pocs/Linux-Privilege-Escalation-Exploits-main/2022/CVE-2022-1015
+    - File content: ./pocs/Linux-Privilege-Escalation-Exploits-main/2022/CVE-2022-1015/README.md
+    - File content: ./pocs/Linux-Privilege-Escalation-Exploits-main/2022/CVE-2022-1015/pwn.c
+    - File content: ./pocs/Linux-Privilege-Escalation-Exploits-main/README.md
+    - File content: ./pocs/kernel-exploit-factory/README.md
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2022-1679 (keyword: 2022-1679)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-1734 (keyword: 2022-1734)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-1976 (keyword: 2022-1976)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-26490 (keyword: 2022-26490)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-26528 (keyword: 2022-26528)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-28388 (keyword: 2022-28388)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-29582 (keyword: 2022-29582)
+  [+] Found! (File system)
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2022-34495 (keyword: 2022-34495)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-3545 (keyword: 2022-3545)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-3564 (keyword: 2022-3564)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-3625 (keyword: 2022-3625)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-3636 (keyword: 2022-3636)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-38221 (keyword: 2022-38221)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-41218 (keyword: 2022-41218)
+  [+] Found! (File system)
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2022-41858 (keyword: 2022-41858)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-42254 (keyword: 2022-42254)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-42257 (keyword: 2022-42257)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-42258 (keyword: 2022-42258)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-42259 (keyword: 2022-42259)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-42703 (keyword: 2022-42703)
+  [+] Found! (File system)
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-4623_lts_cos/docs/exploit.md
+------------------------------------------------------------
+  -> Result for CVE-2022-4379 (keyword: 2022-4379)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-43995 (keyword: 2022-43995)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-45885 (keyword: 2022-45885)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-47938 (keyword: 2022-47938)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-48670 (keyword: 2022-48670)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-48735 (keyword: 2022-48735)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-48739 (keyword: 2022-48739)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2022-48743 (keyword: 2022-48743)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-48779 (keyword: 2022-48779)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-48784 (keyword: 2022-48784)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-48804 (keyword: 2022-48804)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-48844 (keyword: 2022-48844)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-48854 (keyword: 2022-48854)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-48866 (keyword: 2022-48866)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2022-48911 (keyword: 2022-48911)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-48921 (keyword: 2022-48921)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2022-48964 (keyword: 2022-48964)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-48981 (keyword: 2022-48981)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49059 (keyword: 2022-49059)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2022-49078 (keyword: 2022-49078)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2022-49114 (keyword: 2022-49114)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49127 (keyword: 2022-49127)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49203 (keyword: 2022-49203)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49258 (keyword: 2022-49258)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49455 (keyword: 2022-49455)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49474 (keyword: 2022-49474)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2022-49505 (keyword: 2022-49505)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2022-49507 (keyword: 2022-49507)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2022-49530 (keyword: 2022-49530)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49574 (keyword: 2022-49574)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49577 (keyword: 2022-49577)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49587 (keyword: 2022-49587)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49607 (keyword: 2022-49607)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49631 (keyword: 2022-49631)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49711 (keyword: 2022-49711)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2022-49720 (keyword: 2022-49720)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49730 (keyword: 2022-49730)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49740 (keyword: 2022-49740)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2022-49753 (keyword: 2022-49753)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2022-49840 (keyword: 2022-49840)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2022-49892 (keyword: 2022-49892)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2023-0215 (keyword: 2023-0215)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-0615 (keyword: 2023-0615)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-1079 (keyword: 2023-1079)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-1195 (keyword: 2023-1195)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-1476 (keyword: 2023-1476)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-1652 (keyword: 2023-1652)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-20846 (keyword: 2023-20846)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-20848 (keyword: 2023-20848)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-2162 (keyword: 2023-2162)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-2194 (keyword: 2023-2194)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-25012 (keyword: 2023-25012)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-25139 (keyword: 2023-25139)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-25584 (keyword: 2023-25584)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-2598 (keyword: 2023-2598)
+  [+] Found! (File system)
+    - File content: ./pocs/kernel-exploit-factory/README.md
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2023-26589 (keyword: 2023-26589)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-3312 (keyword: 2023-3312)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-3390 (keyword: 2023-3390)
+  [+] Found! (File system)
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3390_lts_cos_mitigation
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3390_lts_cos_mitigation/docs
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3390_lts_cos_mitigation/docs/img
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3390_lts_cos_mitigation/exploit
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3390_lts_cos_mitigation/exploit/cos-105-17412.101.17
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3390_lts_cos_mitigation/exploit/extra-refined
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3390_lts_cos_mitigation/exploit/lts-6.1.31
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3390_lts_cos_mitigation/exploit/mitigation-6.1
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3390_lts_cos_mitigation/README.md
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3390_lts_cos_mitigation/docs/exploit.md
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3390_lts_cos_mitigation/docs/novel-techniques.md
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3390_lts_cos_mitigation/metadata.json
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-4622_cos/docs/exploit.md
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-4622_lts/docs/exploit.md
+------------------------------------------------------------
+  -> Result for CVE-2023-34325 (keyword: 2023-34325)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-35012 (keyword: 2023-35012)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-35824 (keyword: 2023-35824)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-3777 (keyword: 2023-3777)
+  [+] Found! (File system)
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3777_lts
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3777_lts/docs
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3777_lts/exploit
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3777_lts/exploit/lts-6.1.36
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3777_lts/docs/vulnerability.md
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-3777_lts/metadata.json
+------------------------------------------------------------
+  -> Result for CVE-2023-3812 (keyword: 2023-3812)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-3863 (keyword: 2023-3863)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-4004 (keyword: 2023-4004)
+  [+] Found! (File system)
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-4004_lts_cos_mitigation
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-4004_lts_cos_mitigation/docs
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-4004_lts_cos_mitigation/exploit
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-4004_lts_cos_mitigation/exploit/cos-105-17412.101.17
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-4004_lts_cos_mitigation/exploit/lts-6.1.36
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-4004_lts_cos_mitigation/exploit/mitigation-6.1
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-4004_lts_cos_mitigation/docs/exploit.md
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-4004_lts_cos_mitigation/metadata.json
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-6111_cos/docs/exploit.md
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2023-6111_lts/docs/exploit.md
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2024-26925_lts_cos/docs/exploit.md
+------------------------------------------------------------
+  -> Result for CVE-2023-40283 (keyword: 2023-40283)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-45898 (keyword: 2023-45898)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-52594 (keyword: 2023-52594)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2023-52596 (keyword: 2023-52596)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-52604 (keyword: 2023-52604)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2023-52628 (keyword: 2023-52628)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-52707 (keyword: 2023-52707)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2023-52752 (keyword: 2023-52752)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-52840 (keyword: 2023-52840)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-52851 (keyword: 2023-52851)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2023-52852 (keyword: 2023-52852)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-52854 (keyword: 2023-52854)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-52859 (keyword: 2023-52859)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-52931 (keyword: 2023-52931)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-52974 (keyword: 2023-52974)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-52975 (keyword: 2023-52975)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2023-6270 (keyword: 2023-6270)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2023-6610 (keyword: 2023-6610)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-0102 (keyword: 2024-0102)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-0582 (keyword: 2024-0582)
+  [+] Found! (File system)
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2024-0582_mitigation
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2024-0582_mitigation/docs
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2024-0582_mitigation/exploit
+    - Directory name: ./pocs/security-research-pocs-linux/kernelctf/CVE-2024-0582_mitigation/exploit/mitigation-v4-6.6
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2024-0582_mitigation/docs/vulnerability.md
+    - File content: ./pocs/security-research-pocs-linux/kernelctf/CVE-2024-0582_mitigation/metadata.json
+------------------------------------------------------------
+  -> Result for CVE-2024-22386 (keyword: 2024-22386)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-24858 (keyword: 2024-24858)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-26668 (keyword: 2024-26668)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-26708 (keyword: 2024-26708)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-26737 (keyword: 2024-26737)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-26800 (keyword: 2024-26800)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-26849 (keyword: 2024-26849)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-26859 (keyword: 2024-26859)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-26875 (keyword: 2024-26875)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-27008 (keyword: 2024-27008)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-35866 (keyword: 2024-35866)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-35896 (keyword: 2024-35896)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-35937 (keyword: 2024-35937)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-36013 (keyword: 2024-36013)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-36932 (keyword: 2024-36932)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-36935 (keyword: 2024-36935)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-36978 (keyword: 2024-36978)
+  [+] Found! (File system)
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2024-38556 (keyword: 2024-38556)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-38561 (keyword: 2024-38561)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-38576 (keyword: 2024-38576)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-38581 (keyword: 2024-38581)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-39471 (keyword: 2024-39471)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-40906 (keyword: 2024-40906)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-40958 (keyword: 2024-40958)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-41028 (keyword: 2024-41028)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-41040 (keyword: 2024-41040)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-43842 (keyword: 2024-43842)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-43888 (keyword: 2024-43888)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-44981 (keyword: 2024-44981)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-45777 (keyword: 2024-45777)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-45778 (keyword: 2024-45778)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-46722 (keyword: 2024-46722)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-46741 (keyword: 2024-46741)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-46743 (keyword: 2024-46743)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-46746 (keyword: 2024-46746)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-46774 (keyword: 2024-46774)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-46798 (keyword: 2024-46798)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-46849 (keyword: 2024-46849)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-47666 (keyword: 2024-47666)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-47685 (keyword: 2024-47685)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-47689 (keyword: 2024-47689)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-47721 (keyword: 2024-47721)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-49855 (keyword: 2024-49855)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-49960 (keyword: 2024-49960)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-49982 (keyword: 2024-49982)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-50055 (keyword: 2024-50055)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-50086 (keyword: 2024-50086)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-50128 (keyword: 2024-50128)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-50130 (keyword: 2024-50130)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-50226 (keyword: 2024-50226)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-50259 (keyword: 2024-50259)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-50302 (keyword: 2024-50302)
+  [+] Found! (File system)
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2024-53088 (keyword: 2024-53088)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-53100 (keyword: 2024-53100)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-53150 (keyword: 2024-53150)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-53170 (keyword: 2024-53170)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-53194 (keyword: 2024-53194)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-56582 (keyword: 2024-56582)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-56604 (keyword: 2024-56604)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-56672 (keyword: 2024-56672)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-56678 (keyword: 2024-56678)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-57878 (keyword: 2024-57878)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-57890 (keyword: 2024-57890)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-57906 (keyword: 2024-57906)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-57996 (keyword: 2024-57996)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2024-58083 (keyword: 2024-58083)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2024-6387 (keyword: 2024-6387)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-0689 (keyword: 2025-0689)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-1153 (keyword: 2025-1153)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-21687 (keyword: 2025-21687)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-21700 (keyword: 2025-21700)
+  [+] Found! (File system)
+    - File content: ./pocs/linux-kernel-exploitation-master/README.md
+------------------------------------------------------------
+  -> Result for CVE-2025-21707 (keyword: 2025-21707)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2025-21715 (keyword: 2025-21715)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-21726 (keyword: 2025-21726)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-21739 (keyword: 2025-21739)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-21751 (keyword: 2025-21751)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-21867 (keyword: 2025-21867)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-21891 (keyword: 2025-21891)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2025-21947 (keyword: 2025-21947)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-22001 (keyword: 2025-22001)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-22003 (keyword: 2025-22003)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-22027 (keyword: 2025-22027)
+  [+] Found! (Keywords in description)
+    - Found keywords in NVD description
+------------------------------------------------------------
+  -> Result for CVE-2025-22036 (keyword: 2025-22036)
+  [-] Not found
+------------------------------------------------------------
+  -> Result for CVE-2025-40114 (keyword: 2025-40114)
+  [-] Not found
+------------------------------------------------------------
+
+[✔] Final Summary!
+Total checked: 346 CVE IDs
+Total found with PoC: 69: 19.94%
+Total not found with PoC: 277
